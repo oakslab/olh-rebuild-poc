@@ -25,5 +25,12 @@
   "anyFurtherInformation": true,
   "anyFurtherInformationDescription": "I prefer morning appointments due to work schedule",
   "consentTc": true,
-  "mwlEligibility": true
+  "mwlEligibility": true,
+  "phoneNumber": "+1-555-987-6543",
+  "mwlExclusivity": true,
+  "productId": "glp1-semaglutide-starter",
+  "productName": "Semaglutide Starter Kit",
+  "price": 299.99,
+  "priceCurrency": "USD",
+  "schedulingCompleted": true
 }

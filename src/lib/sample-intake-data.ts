@@ -92,6 +92,12 @@ export const sampleIntakeData: IntakeFormData = {
   mwlEligibility: true,
   syncVisit: false,
   clearanceRequired: false,
+
+  // Additional fields
+  phoneNumber: "+1-555-123-4567", // Alternative phone field
+  mwlExclusivity: true,
+  lastMwlDose: "2 weeks ago",
+  glp1MedicationPenImage: "https://example.com/medication-pen-image.jpg",
 };
 
 export const invalidIntakeData: Partial<IntakeFormData> = {

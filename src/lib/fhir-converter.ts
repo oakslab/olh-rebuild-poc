@@ -46,18 +46,7 @@ export function convertToFHIRPatient(
     ],
     gender: intakeData.gender as "male" | "female" | "other" | "unknown",
     birthDate: intakeData.dateOfBirth,
-    telecom: [
-      {
-        system: "email",
-        value: intakeData.email,
-        use: "home",
-      } as ContactPoint,
-      {
-        system: "phone",
-        value: intakeData.phone,
-        use: "home",
-      } as ContactPoint,
-    ],
+    telecom: createPatientTelecom(intakeData),
     address: createPatientAddresses(intakeData),
   };
 
@@ -158,6 +147,34 @@ export function convertToFHIRHeightObservation(
   };
 
   return observation;
+}
+
+/**
+ * Creates patient telecom entries for email and phone
+ */
+function createPatientTelecom(intakeData: IntakeFormData): ContactPoint[] {
+  const telecom: ContactPoint[] = [];
+
+  // Email
+  if (intakeData.email) {
+    telecom.push({
+      system: "email",
+      value: intakeData.email,
+      use: "home",
+    } as ContactPoint);
+  }
+
+  // Phone - support both phone and phoneNumber fields for backward compatibility
+  const phoneValue = intakeData.phone || intakeData.phoneNumber;
+  if (phoneValue) {
+    telecom.push({
+      system: "phone",
+      value: phoneValue,
+      use: "home",
+    } as ContactPoint);
+  }
+
+  return telecom;
 }
 
 /**
@@ -879,6 +896,389 @@ export function convertToFHIRAdditionalObservations(
 }
 
 /**
+ * Converts treatment plan to FHIR MedicationRequest resource
+ */
+export function convertToFHIRMedicationRequest(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): MedicationRequest | null {
+  if (!intakeData.productId || !intakeData.productName) return null;
+
+  const medicationRequest: MedicationRequest = {
+    resourceType: "MedicationRequest",
+    id: randomUUID(),
+    status: "draft",
+    intent: "proposal",
+    medicationCodeableConcept: {
+      coding: [
+        {
+          system: "https://openloop.org/fhir/medication-codes",
+          code: intakeData.productId,
+          display: intakeData.productName,
+        },
+      ],
+      text: intakeData.productName,
+    },
+    subject: {
+      reference: patientUrnUuid,
+    },
+    authoredOn: new Date().toISOString(),
+    note: intakeData.lastMwlDose
+      ? [
+          {
+            text: `Last dose: ${intakeData.lastMwlDose}`,
+          },
+        ]
+      : undefined,
+  };
+
+  return medicationRequest;
+}
+
+/**
+ * Converts sync visit and clearance requirements to FHIR ServiceRequest resources
+ */
+export function convertToFHIRServiceRequests(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): ServiceRequest[] {
+  const serviceRequests: ServiceRequest[] = [];
+
+  // Sync visit service request
+  if (intakeData.syncVisit) {
+    serviceRequests.push({
+      resourceType: "ServiceRequest",
+      id: randomUUID(),
+      status: "active",
+      intent: "plan",
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/service-codes",
+            code: "sync-telehealth-visit",
+            display: "Synchronous telehealth visit",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      authoredOn: new Date().toISOString(),
+      note: intakeData.syncVisitReason
+        ? [
+            {
+              text: intakeData.syncVisitReason,
+            },
+          ]
+        : undefined,
+    });
+  }
+
+  // Medical clearance service request
+  if (intakeData.clearanceRequired) {
+    serviceRequests.push({
+      resourceType: "ServiceRequest",
+      id: randomUUID(),
+      status: "active",
+      intent: "plan",
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/service-codes",
+            code: "medical-clearance-mwl",
+            display: "Medical clearance for MWL/GLP-1",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      authoredOn: new Date().toISOString(),
+    });
+  }
+
+  return serviceRequests;
+}
+
+/**
+ * Converts consent information to FHIR Consent resource
+ */
+export function convertToFHIRConsent(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Consent | null {
+  if (!intakeData.consentTc) return null;
+
+  const consent: Consent = {
+    resourceType: "Consent",
+    id: randomUUID(),
+    status: "active",
+    scope: {
+      coding: [
+        {
+          system: "http://terminology.hl7.org/CodeSystem/consentscope",
+          code: "treatment",
+          display: "Treatment",
+        },
+      ],
+    },
+    category: [
+      {
+        coding: [
+          {
+            system:
+              "http://terminology.hl7.org/CodeSystem/consentcategorycodes",
+            code: "acd",
+            display: "Advance Care Directive",
+          },
+        ],
+      },
+    ],
+    patient: {
+      reference: patientUrnUuid,
+    },
+    dateTime: new Date().toISOString(),
+    provision: {
+      type: "permit",
+    },
+  };
+
+  return consent;
+}
+
+/**
+ * Converts pricing and payment information to FHIR Invoice resource
+ */
+export function convertToFHIRInvoice(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Invoice | null {
+  if (!intakeData.price && !intakeData.priceId && !intakeData.subscriptionId)
+    return null;
+
+  const invoice: Invoice = {
+    resourceType: "Invoice",
+    id: randomUUID(),
+    status: intakeData.paymentCompleted ? "issued" : "draft",
+    subject: {
+      reference: patientUrnUuid,
+    },
+    date: new Date().toISOString(),
+    identifier: [],
+  };
+
+  // Add identifiers
+  if (intakeData.priceId) {
+    invoice.identifier!.push({
+      system: "https://openloop.org/fhir/price-ids",
+      value: intakeData.priceId,
+      type: {
+        text: "priceId",
+      },
+    });
+  }
+
+  if (intakeData.subscriptionId) {
+    invoice.identifier!.push({
+      system: "https://openloop.org/fhir/subscription-ids",
+      value: intakeData.subscriptionId,
+      type: {
+        text: "subscriptionId",
+      },
+    });
+  }
+
+  // Add total amount
+  if (intakeData.price) {
+    invoice.totalGross = {
+      value: intakeData.price,
+      currency: (intakeData.priceCurrency as any) || "USD",
+    };
+  }
+
+  return invoice;
+}
+
+/**
+ * Converts scheduling information to FHIR Appointment resource
+ */
+export function convertToFHIRAppointment(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Appointment | null {
+  if (!intakeData.schedulingCompleted) return null;
+
+  const appointment: Appointment = {
+    resourceType: "Appointment",
+    id: randomUUID(),
+    status: "booked",
+    participant: [
+      {
+        actor: {
+          reference: patientUrnUuid,
+        },
+        status: "accepted",
+      },
+    ],
+  };
+
+  return appointment;
+}
+
+/**
+ * Converts medication image to FHIR Media resource
+ */
+export function convertToFHIRMedia(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Media | null {
+  if (!intakeData.glp1MedicationPenImage) return null;
+
+  const media: Media = {
+    resourceType: "Media",
+    id: randomUUID(),
+    status: "completed",
+    type: {
+      coding: [
+        {
+          system: "http://terminology.hl7.org/CodeSystem/media-type",
+          code: "image",
+          display: "Image",
+        },
+      ],
+    },
+    subject: {
+      reference: patientUrnUuid,
+    },
+    createdDateTime: new Date().toISOString(),
+    content: {
+      contentType: "image/jpeg",
+      url: intakeData.glp1MedicationPenImage,
+      title: "GLP-1 medication pen/vial image",
+    },
+  };
+
+  return media;
+}
+
+/**
+ * Converts additional administrative observations
+ */
+export function convertToFHIRAdministrativeObservations(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Observation[] {
+  const observations: Observation[] = [];
+
+  // MWL eligibility observation
+  if (intakeData.mwlEligibility !== undefined) {
+    observations.push({
+      resourceType: "Observation",
+      id: randomUUID(),
+      status: "final",
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: "survey",
+              display: "Survey",
+            },
+          ],
+        },
+      ],
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/observation-codes",
+            code: "mwl-eligibility",
+            display: "Medical weight loss eligibility",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      effectiveDateTime: new Date().toISOString(),
+      valueBoolean: intakeData.mwlEligibility,
+    });
+  }
+
+  // DQ reason observation
+  if (intakeData.dqReason) {
+    observations.push({
+      resourceType: "Observation",
+      id: randomUUID(),
+      status: "final",
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: "survey",
+              display: "Survey",
+            },
+          ],
+        },
+      ],
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/observation-codes",
+            code: "dq-reason",
+            display: "Disqualification reason",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      effectiveDateTime: new Date().toISOString(),
+      valueString: intakeData.dqReason,
+    });
+  }
+
+  // MWL exclusivity observation
+  if (intakeData.mwlExclusivity !== undefined) {
+    observations.push({
+      resourceType: "Observation",
+      id: randomUUID(),
+      status: "final",
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: "survey",
+              display: "Survey",
+            },
+          ],
+        },
+      ],
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/observation-codes",
+            code: "mwl-exclusivity",
+            display: "MWL platform exclusivity agreement",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      effectiveDateTime: new Date().toISOString(),
+      valueBoolean: intakeData.mwlExclusivity,
+    });
+  }
+
+  return observations;
+}
+
+/**
  * Creates a FHIR Bundle containing all intake-related resources
  */
 export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
@@ -1026,6 +1426,106 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
       },
     });
   });
+
+  // Add administrative observations
+  const administrativeObservations = convertToFHIRAdministrativeObservations(
+    intakeData,
+    patientUrnUuid
+  );
+  administrativeObservations.forEach(observation => {
+    entries.push({
+      fullUrl: `urn:uuid:${observation.id}`,
+      resource: observation,
+      request: {
+        method: "POST",
+        url: "Observation",
+      },
+    });
+  });
+
+  // Add medication request
+  const medicationRequest = convertToFHIRMedicationRequest(
+    intakeData,
+    patientUrnUuid
+  );
+  if (medicationRequest) {
+    entries.push({
+      fullUrl: `urn:uuid:${medicationRequest.id}`,
+      resource: medicationRequest,
+      request: {
+        method: "POST",
+        url: "MedicationRequest",
+      },
+    });
+  }
+
+  // Add service requests
+  const serviceRequests = convertToFHIRServiceRequests(
+    intakeData,
+    patientUrnUuid
+  );
+  serviceRequests.forEach(serviceRequest => {
+    entries.push({
+      fullUrl: `urn:uuid:${serviceRequest.id}`,
+      resource: serviceRequest,
+      request: {
+        method: "POST",
+        url: "ServiceRequest",
+      },
+    });
+  });
+
+  // Add consent
+  const consent = convertToFHIRConsent(intakeData, patientUrnUuid);
+  if (consent) {
+    entries.push({
+      fullUrl: `urn:uuid:${consent.id}`,
+      resource: consent,
+      request: {
+        method: "POST",
+        url: "Consent",
+      },
+    });
+  }
+
+  // Add invoice
+  const invoice = convertToFHIRInvoice(intakeData, patientUrnUuid);
+  if (invoice) {
+    entries.push({
+      fullUrl: `urn:uuid:${invoice.id}`,
+      resource: invoice,
+      request: {
+        method: "POST",
+        url: "Invoice",
+      },
+    });
+  }
+
+  // Add appointment
+  const appointment = convertToFHIRAppointment(intakeData, patientUrnUuid);
+  if (appointment) {
+    entries.push({
+      fullUrl: `urn:uuid:${appointment.id}`,
+      resource: appointment,
+      request: {
+        method: "POST",
+        url: "Appointment",
+      },
+    });
+  }
+
+  // Add media
+  const media = convertToFHIRMedia(intakeData, patientUrnUuid);
+  if (media) {
+    entries.push({
+      fullUrl: `urn:uuid:${media.id}`,
+      resource: media,
+      request: {
+        method: "POST",
+        url: "Media",
+      },
+    });
+  }
 
   return {
     resourceType: "Bundle",

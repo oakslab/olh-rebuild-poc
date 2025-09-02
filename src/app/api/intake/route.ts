@@ -182,11 +182,18 @@ export async function GET() {
       "Observation - Laboratory values (glucose, hemoglobin A1c)",
       "Observation - Vital signs (blood pressure, heart rate)",
       "Observation - Social history and lifestyle factors",
+      "Observation - Administrative data (eligibility, DQ reasons)",
       "Goal - Weight management goals and targets",
       "Condition - Medical conditions and comorbidities",
       "MedicationStatement - Current and historical medications",
+      "MedicationRequest - Treatment plan prescriptions",
       "Procedure - Surgical history and procedures",
       "AllergyIntolerance - Medication allergies and reactions",
+      "ServiceRequest - Sync visits and medical clearance",
+      "Consent - Terms and conditions agreements",
+      "Invoice - Pricing and payment information",
+      "Appointment - Scheduling information",
+      "Media - Medication images and documentation",
     ],
     endpoints: {
       POST: {

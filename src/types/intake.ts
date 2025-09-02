@@ -100,6 +100,12 @@ export interface IntakeFormData {
   syncVisit?: boolean;
   syncVisitReason?: string;
   clearanceRequired?: boolean;
+
+  // Additional fields from CSV
+  phoneNumber?: string; // Will be mapped properly to telecom
+  mwlExclusivity?: boolean;
+  glp1MedicationPenImage?: string; // Media resource
+  age?: number; // Calculated from dateOfBirth
 }
 
 export interface IntakeFormResponse {
