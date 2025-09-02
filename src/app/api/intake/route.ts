@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         submissionId,
         patientName: `${body.firstName} ${body.lastName}`,
         email: body.email,
-        reasonForVisit: body.reasonForVisit,
+        gender: body.gender,
         fhirBundleId: medplumResponse.id,
         timestamp: new Date().toISOString(),
       });
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         submissionId,
         patientName: `${body.firstName} ${body.lastName}`,
         email: body.email,
-        reasonForVisit: body.reasonForVisit,
+        gender: body.gender,
         timestamp: new Date().toISOString(),
       });
     }
@@ -114,12 +114,8 @@ export async function GET() {
           "email",
           "phone",
           "dateOfBirth",
+          "gender",
           "address",
-          "emergencyContact",
-          "insurance",
-          "reasonForVisit",
-          "consentToTreatment",
-          "privacyPolicyAccepted",
         ],
       },
     },

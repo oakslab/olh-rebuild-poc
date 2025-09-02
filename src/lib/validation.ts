@@ -18,7 +18,7 @@ export function validateZipCode(zipCode: string): boolean {
 export function validateIntakeForm(data: IntakeFormData): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  // Required field validation
+  // Personal Information validation (mapped to Patient resource)
   if (!data.firstName?.trim()) {
     errors.push({ field: "firstName", message: "First name is required" });
   }
@@ -58,7 +58,11 @@ export function validateIntakeForm(data: IntakeFormData): ValidationError[] {
     }
   }
 
-  // Address validation
+  if (!data.gender?.trim()) {
+    errors.push({ field: "gender", message: "Gender is required" });
+  }
+
+  // Address validation (mapped to Patient.address)
   if (!data.address?.street?.trim()) {
     errors.push({
       field: "address.street",
@@ -80,86 +84,6 @@ export function validateIntakeForm(data: IntakeFormData): ValidationError[] {
     errors.push({
       field: "address.zipCode",
       message: "Please enter a valid ZIP code",
-    });
-  }
-
-  if (!data.address?.country?.trim()) {
-    errors.push({ field: "address.country", message: "Country is required" });
-  }
-
-  // Emergency contact validation
-  if (!data.emergencyContact?.name?.trim()) {
-    errors.push({
-      field: "emergencyContact.name",
-      message: "Emergency contact name is required",
-    });
-  }
-
-  if (!data.emergencyContact?.relationship?.trim()) {
-    errors.push({
-      field: "emergencyContact.relationship",
-      message: "Emergency contact relationship is required",
-    });
-  }
-
-  if (!data.emergencyContact?.phone?.trim()) {
-    errors.push({
-      field: "emergencyContact.phone",
-      message: "Emergency contact phone is required",
-    });
-  } else if (!validatePhone(data.emergencyContact.phone)) {
-    errors.push({
-      field: "emergencyContact.phone",
-      message: "Please enter a valid emergency contact phone number",
-    });
-  }
-
-  // Insurance validation
-  if (!data.insurance?.provider?.trim()) {
-    errors.push({
-      field: "insurance.provider",
-      message: "Insurance provider is required",
-    });
-  }
-
-  if (!data.insurance?.policyNumber?.trim()) {
-    errors.push({
-      field: "insurance.policyNumber",
-      message: "Policy number is required",
-    });
-  }
-
-  // Reason for visit validation
-  if (!data.reasonForVisit?.trim()) {
-    errors.push({
-      field: "reasonForVisit",
-      message: "Reason for visit is required",
-    });
-  }
-
-  // Pain level validation
-  if (
-    data.painLevel !== undefined &&
-    (data.painLevel < 1 || data.painLevel > 10)
-  ) {
-    errors.push({
-      field: "painLevel",
-      message: "Pain level must be between 1 and 10",
-    });
-  }
-
-  // Consent validation
-  if (!data.consentToTreatment) {
-    errors.push({
-      field: "consentToTreatment",
-      message: "Consent to treatment is required",
-    });
-  }
-
-  if (!data.privacyPolicyAccepted) {
-    errors.push({
-      field: "privacyPolicyAccepted",
-      message: "Privacy policy acceptance is required",
     });
   }
 

@@ -1,5 +1,5 @@
 export interface IntakeFormData {
-  // Personal Information
+  // Personal Information - mapped to Patient resource
   firstName: string;
   lastName: string;
   email: string;
@@ -7,54 +7,12 @@ export interface IntakeFormData {
   dateOfBirth: string;
   gender: string;
 
-  // Contact Information
+  // Address Information - mapped to Patient.address
   address: {
     street: string;
     city: string;
     state: string;
     zipCode: string;
-    country: string;
-  };
-
-  // Emergency Contact
-  emergencyContact: {
-    name: string;
-    relationship: string;
-    phone: string;
-  };
-
-  // Medical Information
-  medicalHistory: {
-    currentMedications: string[];
-    allergies: string[];
-    chronicConditions: string[];
-    previousSurgeries: string[];
-  };
-
-  // Insurance Information
-  insurance: {
-    provider: string;
-    policyNumber: string;
-    groupNumber?: string;
-  };
-
-  // Reason for Visit
-  reasonForVisit: string;
-  symptoms: string[];
-  symptomDuration: string;
-  painLevel?: number; // 1-10 scale
-
-  // Additional Information
-  additionalNotes?: string;
-  preferredAppointmentTime?: string;
-
-  // Consent and Agreements
-  consentToTreatment: boolean;
-  privacyPolicyAccepted: boolean;
-  communicationPreferences: {
-    email: boolean;
-    sms: boolean;
-    phone: boolean;
   };
 }
 
