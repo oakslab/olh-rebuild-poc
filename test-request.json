@@ -3,6 +3,7 @@
   "lastName": "Smith",
   "email": "jane.smith@example.com",
   "phone": "+1-555-987-6543",
+  "phoneNumber": "+1-555-987-6543",
   "dateOfBirth": "1990-03-15",
   "gender": "female",
   "address": {
@@ -13,24 +14,87 @@
   },
   "weight": 135,
   "height": 65,
+
   "weightGoal": "Lose 20 pounds to improve overall health",
+  "mainReason": [
+    "Improve overall health",
+    "Increase energy levels",
+    "Reduce cardiovascular risk"
+  ],
+
   "medicalExclusionCriteria": ["Hypothyroidism"],
+  "weightRelatedComorbidity": ["Sleep apnea", "High blood pressure"],
+  "otherExclusionConditions": ["Migraines"],
+
   "anyMedications": true,
-  "anyMedicationsDescription": "Levothyroxine 75mcg daily",
-  "priorWeightLossMedsUse": false,
+  "anyMedicationsDescription": "Levothyroxine 75mcg daily, Ibuprofen as needed",
+  "priorWeightLossMedsUse": true,
+  "weightLossMedicationDescription": "Phentermine 37.5mg daily for 2 months in 2023",
+  "opiatePainMedications": false,
+  "opiatePainMedicationsDescription": "",
+  "lastMwlDose": "3 weeks ago",
+
   "abdominalPelvicSurgeries": false,
+  "abdominalPelvicSurgeriesDescription": "",
+
+  "weightManagementProgram": true,
+  "weightManagementProgramDescription": "Participated in Weight Watchers program for 6 months",
+  "willingTo": [
+    "Follow structured meal plans",
+    "Exercise 3x per week",
+    "Weekly check-ins with nutritionist"
+  ],
+  "weightChangeIn12Months": "Gained 15 pounds due to work stress",
+  "medicalLifestyleFactors": [
+    "Injectable medication",
+    "Dietary counseling",
+    "Exercise program"
+  ],
+
   "glucoseValue": 95,
+  "hemoglobinValue": 5.8,
   "bloodPressureRange": "110-120/70-80",
-  "medicationAllergies": false,
+  "restingHeartRateRange": "65-75 bpm",
+  "startingWeightInLbs": 150,
+
+  "medicationAllergies": true,
+  "medicationAllergiesDescription": "Penicillin - causes rash and nausea",
+
   "anyFurtherInformation": true,
-  "anyFurtherInformationDescription": "I prefer morning appointments due to work schedule",
+  "anyFurtherInformationDescription": "I prefer morning appointments due to work schedule. I have a family history of diabetes and heart disease.",
+
+  "shippingAddress": {
+    "fullName": "Jane Smith",
+    "address1": "789 Work Plaza Suite 200",
+    "city": "Albany",
+    "state": "NY",
+    "zipCode": "12208"
+  },
+
+  "paymentAddress": {
+    "fullName": "Jane Smith",
+    "zipCode": "12345"
+  },
+
   "consentTc": true,
-  "mwlEligibility": true,
-  "phoneNumber": "+1-555-987-6543",
-  "mwlExclusivity": true,
+
   "productId": "glp1-semaglutide-starter",
   "productName": "Semaglutide Starter Kit",
   "price": 299.99,
   "priceCurrency": "USD",
-  "schedulingCompleted": true
+  "priceId": "price_semaglutide_starter_001",
+  "subscriptionId": "sub_jane_smith_001",
+  "paymentCompleted": true,
+
+  "schedulingCompleted": true,
+
+  "mwlEligibility": true,
+  "dqReason": "",
+  "syncVisit": true,
+  "syncVisitReason": "Complex medical history requires physician consultation before starting treatment",
+  "clearanceRequired": false,
+  "mwlExclusivity": true,
+
+  "glp1MedicationPenImage": "https://example.com/uploads/jane-smith-medication-pen.jpg",
+  "age": 34
 }

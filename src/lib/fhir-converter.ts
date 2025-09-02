@@ -193,29 +193,29 @@ function createPatientAddresses(intakeData: IntakeFormData): Address[] {
     } as Address,
   ];
 
-  // Add shipping address if provided
+  // Add shipping address if provided (following CSV mapping specification)
   if (intakeData.shippingAddress) {
     addresses.push({
-      use: "temp",
-      type: "postal",
+      use: "temp", // patient.address[1].use = "temp"
+      type: "postal", // patient.address[1].type = "postal"
       line: [
-        intakeData.shippingAddress.fullName || "",
-        intakeData.shippingAddress.address1 || "",
+        intakeData.shippingAddress.fullName || "", // patient.address[1].line[0]
+        intakeData.shippingAddress.address1 || "", // patient.address[1].line[1]
       ].filter(Boolean),
-      city: intakeData.shippingAddress.city,
-      state: intakeData.shippingAddress.state,
-      postalCode: intakeData.shippingAddress.zipCode,
+      city: intakeData.shippingAddress.city, // patient.address[1].city
+      state: intakeData.shippingAddress.state, // patient.address[1].state
+      postalCode: intakeData.shippingAddress.zipCode, // patient.address[1].postalCode
       country: "US",
     } as Address);
   }
 
-  // Add billing address if provided
+  // Add billing address if provided (following CSV mapping specification)
   if (intakeData.paymentAddress) {
     addresses.push({
-      use: "billing",
-      type: "postal",
-      line: [intakeData.paymentAddress.fullName || ""].filter(Boolean),
-      postalCode: intakeData.paymentAddress.zipCode,
+      use: "billing", // patient.address[2].use = "billing"
+      type: "postal", // patient.address[2].type = "postal"
+      line: [intakeData.paymentAddress.fullName || ""].filter(Boolean), // patient.address[2].line[0]
+      postalCode: intakeData.paymentAddress.zipCode, // patient.address[2].postalCode
       country: "US",
     } as Address);
   }
@@ -276,40 +276,108 @@ export function convertToFHIRBMIObservation(
 }
 
 /**
- * Converts weight goal to a FHIR Goal resource
+ * Converts weight goal and main reasons to FHIR Goal resources
  */
-export function convertToFHIRGoal(
+export function convertToFHIRGoals(
   intakeData: IntakeFormData,
-  patientUrnUuid: string,
-  goalId: string
-): Goal | null {
-  if (!intakeData.weightGoal) return null;
+  patientUrnUuid: string
+): Goal[] {
+  const goals: Goal[] = [];
 
-  const goal: Goal = {
-    resourceType: "Goal",
-    id: goalId,
-    lifecycleStatus: "active",
-    category: [
-      {
-        coding: [
+  // Weight loss goal
+  if (intakeData.weightGoal) {
+    goals.push({
+      resourceType: "Goal",
+      id: randomUUID(),
+      lifecycleStatus: "active",
+      category: [
+        {
+          coding: [
+            {
+              system: "http://terminology.hl7.org/CodeSystem/goal-category",
+              code: "behavioral",
+              display: "Behavioral",
+            },
+          ],
+        },
+      ],
+      description: {
+        text: intakeData.weightGoal,
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      startDate: new Date().toISOString().split("T")[0],
+    });
+  }
+
+  // Main reasons for weight loss (from CSV mapping)
+  if (intakeData.mainReason?.length) {
+    intakeData.mainReason.forEach(reason => {
+      const goal: Goal = {
+        resourceType: "Goal",
+        id: randomUUID(),
+        lifecycleStatus: "active",
+        category: [
           {
-            system: "http://terminology.hl7.org/CodeSystem/goal-category",
-            code: "behavioral",
-            display: "Behavioral",
+            coding: [
+              {
+                system: "http://terminology.hl7.org/CodeSystem/goal-category",
+                code: "behavioral",
+                display: "Behavioral",
+              },
+            ],
           },
         ],
-      },
-    ],
-    description: {
-      text: intakeData.weightGoal,
-    },
-    subject: {
-      reference: patientUrnUuid,
-    },
-    startDate: new Date().toISOString().split("T")[0],
-  };
+        description: {
+          text: reason,
+        },
+        subject: {
+          reference: patientUrnUuid,
+        },
+        startDate: new Date().toISOString().split("T")[0],
+      };
 
-  return goal;
+      // Add SNOMED codes based on common reasons (as suggested in CSV)
+      const snomedMapping: Record<string, { code: string; display: string }> = {
+        longevity: { code: "111951006", display: "Longevity" },
+        "reduce risk": { code: "1255619009", display: "Risk level" },
+        "improve health": { code: "182840001", display: "Improve health" },
+        "increase energy": { code: "248263006", display: "Increase energy" },
+        "reduce cardiovascular risk": {
+          code: "1255619009",
+          display: "Risk level",
+        },
+        "improve diabetes control": {
+          code: "182840001",
+          display: "Improve health",
+        },
+      };
+
+      // Try to match reason to SNOMED code
+      const reasonLower = reason.toLowerCase();
+      for (const [key, snomed] of Object.entries(snomedMapping)) {
+        if (reasonLower.includes(key)) {
+          // Add SNOMED code as extension since Goal.code doesn't exist in FHIR R4
+          goal.extension = [
+            {
+              url: "https://openloop.org/fhir/goal-snomed-code",
+              valueCoding: {
+                system: "http://snomed.info/sct",
+                code: snomed.code,
+                display: snomed.display,
+              },
+            },
+          ];
+          break;
+        }
+      }
+
+      goals.push(goal);
+    });
+  }
+
+  return goals;
 }
 
 /**
@@ -461,12 +529,12 @@ export function convertToFHIRMedicationStatements(
     });
   }
 
-  // Weight loss medications
+  // Weight loss medications with enhanced timing
   if (
     intakeData.priorWeightLossMedsUse &&
     intakeData.weightLossMedicationDescription
   ) {
-    medicationStatements.push({
+    const medicationStatement: MedicationStatement = {
       resourceType: "MedicationStatement",
       id: randomUUID(),
       status: "active",
@@ -481,7 +549,31 @@ export function convertToFHIRMedicationStatements(
           text: intakeData.weightLossMedicationDescription,
         },
       ],
-    });
+    };
+
+    // Add timing information if lastMwlDose is provided (CSV mapping: medicationStatement.dosage.timing)
+    if (intakeData.lastMwlDose) {
+      medicationStatement.dosage![0].timing = {
+        repeat: {
+          // Use extension for custom timing data since bounds structure is complex
+          extension: [
+            {
+              url: "https://openloop.org/fhir/last-dose-timing",
+              valueString: intakeData.lastMwlDose,
+            },
+          ],
+        },
+      };
+
+      // Add as additional text note as well
+      medicationStatement.note = [
+        {
+          text: `Last dose: ${intakeData.lastMwlDose}`,
+        },
+      ];
+    }
+
+    medicationStatements.push(medicationStatement);
   }
 
   // Opiate medications
@@ -889,6 +981,93 @@ export function convertToFHIRAdditionalObservations(
       },
       effectiveDateTime: new Date().toISOString(),
       valueString: intakeData.medicalLifestyleFactors.join(", "),
+    });
+  }
+
+  return observations;
+}
+
+/**
+ * Converts social history and lifestyle observations to FHIR Observation resources
+ */
+export function convertToFHIRSocialHistoryObservations(
+  intakeData: IntakeFormData,
+  patientUrnUuid: string
+): Observation[] {
+  const observations: Observation[] = [];
+
+  // Willing to participate in activities (from CSV mapping)
+  if (intakeData.willingTo?.length) {
+    observations.push({
+      resourceType: "Observation",
+      id: randomUUID(),
+      status: "final",
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: "social-history",
+              display: "Social History",
+            },
+          ],
+        },
+      ],
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/observation-codes",
+            code: "willing-to-participate",
+            display: "Willing to participate in activities",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      effectiveDateTime: new Date().toISOString(),
+      component: intakeData.willingTo.map(activity => ({
+        code: {
+          text: "Activity willingness",
+        },
+        valueString: activity,
+      })),
+    });
+  }
+
+  // Weight change in 12 months (social history context)
+  if (intakeData.weightChangeIn12Months) {
+    observations.push({
+      resourceType: "Observation",
+      id: randomUUID(),
+      status: "final",
+      category: [
+        {
+          coding: [
+            {
+              system:
+                "http://terminology.hl7.org/CodeSystem/observation-category",
+              code: "social-history",
+              display: "Social History",
+            },
+          ],
+        },
+      ],
+      code: {
+        coding: [
+          {
+            system: "https://openloop.org/fhir/observation-codes",
+            code: "weight-change-12mo",
+            display: "Weight change in last 12 months",
+          },
+        ],
+      },
+      subject: {
+        reference: patientUrnUuid,
+      },
+      effectiveDateTime: new Date().toISOString(),
+      valueString: intakeData.weightChangeIn12Months,
     });
   }
 
@@ -1343,9 +1522,9 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
     },
   });
 
-  // Add goal if provided
-  const goal = convertToFHIRGoal(intakeData, patientUrnUuid, randomUUID());
-  if (goal) {
+  // Add goals (weight goal and main reasons)
+  const goals = convertToFHIRGoals(intakeData, patientUrnUuid);
+  goals.forEach(goal => {
     entries.push({
       fullUrl: `urn:uuid:${goal.id}`,
       resource: goal,
@@ -1354,7 +1533,7 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
         url: "Goal",
       },
     });
-  }
+  });
 
   // Add conditions
   const conditions = convertToFHIRConditions(intakeData, patientUrnUuid);
@@ -1417,6 +1596,22 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
     patientUrnUuid
   );
   additionalObservations.forEach(observation => {
+    entries.push({
+      fullUrl: `urn:uuid:${observation.id}`,
+      resource: observation,
+      request: {
+        method: "POST",
+        url: "Observation",
+      },
+    });
+  });
+
+  // Add social history observations
+  const socialHistoryObservations = convertToFHIRSocialHistoryObservations(
+    intakeData,
+    patientUrnUuid
+  );
+  socialHistoryObservations.forEach(observation => {
     entries.push({
       fullUrl: `urn:uuid:${observation.id}`,
       resource: observation,

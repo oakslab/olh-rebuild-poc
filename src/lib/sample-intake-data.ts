@@ -98,6 +98,9 @@ export const sampleIntakeData: IntakeFormData = {
   mwlExclusivity: true,
   lastMwlDose: "2 weeks ago",
   glp1MedicationPenImage: "https://example.com/medication-pen-image.jpg",
+  age: 39, // Calculated from dateOfBirth
+  dqReason: "", // No disqualification
+  syncVisitReason: "Patient prefers video consultation for initial assessment",
 };
 
 export const invalidIntakeData: Partial<IntakeFormData> = {
