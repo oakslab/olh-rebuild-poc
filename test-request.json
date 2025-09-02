@@ -12,5 +12,18 @@
     "zipCode": "12345"
   },
   "weight": 135,
-  "height": 65
+  "height": 65,
+  "weightGoal": "Lose 20 pounds to improve overall health",
+  "medicalExclusionCriteria": ["Hypothyroidism"],
+  "anyMedications": true,
+  "anyMedicationsDescription": "Levothyroxine 75mcg daily",
+  "priorWeightLossMedsUse": false,
+  "abdominalPelvicSurgeries": false,
+  "glucoseValue": 95,
+  "bloodPressureRange": "110-120/70-80",
+  "medicationAllergies": false,
+  "anyFurtherInformation": true,
+  "anyFurtherInformationDescription": "I prefer morning appointments due to work schedule",
+  "consentTc": true,
+  "mwlEligibility": true
 }

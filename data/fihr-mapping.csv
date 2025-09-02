@@ -1,0 +1,151 @@
+Description / Purpose (name of the screen),Source Field,Page Type,Data Type,TO-BE Entity,FHIR Element (FHIRPath),Mapping Logic / Transformation Rules,In PoC
+What is your weight loss goal?,weight_goal,Input (custom),(list of options),Goal,goal.description,,FALSE
+What is your current weight and height?,weight,Input (predefined),(number),Observation,"observation.valueQuantity
+observation.code = ""29463-7""",LOINC/UCUM,TRUE
+What is your current weight and height?,height_inches,Input (predefined),(number),N/A,N/A,,FALSE
+What is your current weight and height?,height_feets,Input (predefined),(number),N/A,N/A,,FALSE
+What is your current weight and height?,bmi,Component Calculated Variables,(number),Observation,"observation.valueQuantity
+observation.code = ""39156-5""",LOINC/UCUM,TRUE
+What is your current weight and height?,height,Component Calculated Variables,(number),Observation,"observation.valueQuantity
+observation.code = ""8302-2""",LOINC/UCUM,FALSE
+What is your gender? ,gender,Input (custom),(list of options),Patient,patient.gender,,TRUE
+What is your date of birth?,date_of_birth,Predefined Input,(date),Patient,patient.birthDate,,TRUE
+What is your date of birth?,age,Component Calculated Variables,(number),N/A,N/A,,FALSE
+Where are you currently located?,state,Predefined Input,text,Address,"patient.address[0].state
+patient.address[0].country = ""US""
+patient.address[0].type = ""physical""
+patient.address[0].use = ""home""",,TRUE
+"What are the main reasons you want to make a change?
+",main_reason,Input (custom),(list of options),Goal,"goal.display
+goal.code","potentially mapping to SNOMED codes
+
+for example:
+111951006 – “Longevity”
+1255619009 – “Risk level”",FALSE
+Do any of the following apply to you?,medical_exclusion_criteria,Component Calculated Variables,(list of options),"Condition
+
+or DetectedIssue / Observation","condition.code
+condition.clinicalStatus = ""active""
+condition.category = ""problem-list-item""","SNOMED
+
+codes like:
+Pregnant = SNOMED 77386006
+46177005 “End-stage renal disease”
+6471006 “Suicidal ideation”",FALSE
+Are you currently taking or have recently (within the last 12 months) taken medication(s) for weight loss?,prior_weight_loss_meds_use,Input (custom),(list of options),MedicationStatement,"medicationStatement.status = ""active""",,FALSE
+"Please list the name, dose, and frequency of your current or recent (within the last 12 months) weight loss medication(s).",weight_loss_medication_description,Input (custom),text,Dosage,medicationStatement.dosage.text,,FALSE
+What was your starting weight in pounds (lbs)? ,starting_weight_in_lbs,Input (custom),number,Observation,"observation.valueQuantity
+observation.code = ""29463-7""",LOINC/UCUM,FALSE
+Do you agree to only obtain weight loss medication through this platform moving forward?,mwl_exclusivity,Input (custom),(list of options),,,,FALSE
+When was your last dose of medication? This question is required before further medication can be prescribed.,last_mwl_dose,Input (custom),(list of options),Timing,medicationStatement.dosage.timing,,FALSE
+Please upload a picture of your current GLP-1 medication pen or vial.,glp1_medication_pen_image,Input (custom),image,Media,"media.content
+media.subject
+media.partOf - link to statement
+media.type = ""photo""",,FALSE
+Do you currently take any medications?,any_medications,Input (custom),(list of options),"Observation
+MedicationStatement","observation.code = ""Takes current meds""
+(same principle as above)",,FALSE
+"Please include name, dose, and frequency of all your medications.",any_medications_description,Input (custom),text,Dosage,medicationStatement.dosage.text,,FALSE
+"Are you currently taking, plan to take, or have recently (within the last 3 months) taken opiate pain medications and/or opiate-based street drugs?",opiate_pain_medications,Input (custom),(list of options),"Observation
+MedicationStatement","observation.code = ""Takes current meds""
+(same principle as above)",,FALSE
+"Please include date range, name, dose, and frequency of your opiate medications.",opiate_pain_medications_description,Input (custom),text,Dosage,medicationStatement.dosage.text,,FALSE
+Have you had prior bariatric (weight loss) surgery or any abdominal/pelvic surgeries?,abdominal_pelvic_surgeries,Input (custom),(list of options),Procedure,"procedure.code
+procedure.status = ""completed""",SNOMED,FALSE
+Please provide details about your bariatric surgery or abdominal/pelvic surgeries.,abdominal_pelvic_surgeries_description,Input (custom),text,Procedure,procedure.note.text,,FALSE
+"Have you ever attempted to lose weight in a weight management program, such as through caloric restriction, exercise, or behavior modification?",weight_management_program,Input (custom),(list of options),Observation,"observation.code = ""Prior weight mgmt program""
+(same principle as above)",,FALSE
+Please provide brief details.,weight_management_program_description,Input (custom),text,Observation,observation.note,,FALSE
+Are you willing to,willing_to,Input (custom),(list of options),Observation,"observation.category = ""social-history""
+observation.code = own code
+observation.display",SNOMED,FALSE
+How has your weight changed in the last 12 months?,weight_change_in_12_months,Input (custom),(list of options),,,,FALSE
+Do any of these apply to you?,other_exclusion_conditions,Component Calculated Variables,(list of options),Condition,"condition.code
+condition.clinicalStatus = ""active""
+condition.category = ""problem-list-item""","SNOMED
+
+for example
+46635009 (Type 1 diabetes mellitus)
+23986001 (Glaucoma)",FALSE
+Do any of the following weight-related medical conditions apply to you?,weight_related_comorbidity,Component Calculated Variables,,Condition,"condition.code
+condition.clinicalStatus = ""active""
+condition.category = ""problem-list-item""","SNOMED
+
+for example
+Gastro-esophageal reflux disease (GERD) 235595009.",FALSE
+What was your most recent fasting glucose value?,glucose_value,Input (custom),number,Observation,"observation.valueQuantity
+observation.code = ""fasting plasma glucose""",LOINC/UCUM,FALSE
+What was your most recent hemoglobin A1c value?,hemoglobin_value,Input (custom),number,Observation,"observation.valueQuantity
+observation.code = ""4548-4""",LOINC/UCUM,FALSE
+What is your current or average blood pressure range?,blood_pressure_range,Input (custom),(list of options),Observation,"observation.valueQuantity
+observation.code = ""85354-9""",,FALSE
+What is your current or average resting heart rate range?,resting_heart_rate_range,Input (custom),(list of options),Observation,"observation.valueQuantity
+observation.code = ""40443-4""",,FALSE
+Do you have any medication allergies?,medication_allergies,Input (custom),(list of options),AllergyIntolerance,"allergyIntolerance.code
+allergyIntolerance.clinicalStatus",,FALSE
+Please list your medication allergies.  ,medication_allergies_description,Input (custom),text,AllergyIntolerance,allergyIntolerance.reaction.manifestation.text,,FALSE
+Please select all of the following formulation options that you are interested in,medical_lifestyle_factors,Component Calculated Variables,(list of options),Observation,"observation.code
+observation.system = ""formulation-pref""",,FALSE
+Do you have any further information which you would like the doctor to know? ,any_further_information,Input (custom),Select (single choice),Observation,see below,,FALSE
+"Please do not include urgent or emergency medical information here, as this is not reviewed immediately.",any_further_information_description,Input (custom),text,Observation,"observation.valueCodeableConcept
+observation.code = ""Instructions for doctor""",,FALSE
+What is your first and last name?,first_name,Input (predefined),text,Patient,patient.name.given,,TRUE
+,last_name,Input (predefined),text,Patient,patient.name.family,,TRUE
+What is your email and phone number?,email,Input (predefined),text,ContactPoint,"patient.telecom.value
+patient.telecom.system = ""email""
+patient.telecom.use = ""home""",,FALSE
+,phone_number,Input (predefined),text,ContactPoint,"patient.telecom.value
+patient.telecom.system = ""phone""
+patient.telecom.use = ""home""",,FALSE
+Choose Your Treatment Plan,product_id,Component Calculated Variables,text,MedicationRequest & Medication,"medicationRequest.medication.code
+medicationRequest.intent = ""proposal""
+medicationRequest.status = ""draft""
+",,FALSE
+Choose Your Treatment Plan,price_id,Component Calculated Variables,text,Invoice,"invoice.identifier
+invoice.type = ""priceId""",,FALSE
+Choose Your Treatment Plan,product_name,Component Calculated Variables,text,MedicationRequest & Medication,"medicationRequest.medication.code.text
+medicationRequest.intent = ""proposal""
+medicationRequest.status = ""draft""
+",,FALSE
+Choose Your Treatment Plan,price,Component Calculated Variables,number,Invoice,invoice.totalGross,,FALSE
+Choose Your Treatment Plan,price_currency,Component Calculated Variables,text,Invoice,invoice.totalGross.currency,,FALSE
+Checkout,first_name,Input (predefined),text,Patient,patient.name.given,,TRUE
+Checkout,last_name,Input (predefined),text,Patient,patient.name.family,,TRUE
+Checkout,email,Input (predefined),text,Patient,"patient.telecom.value
+patient.telecom.system = ""email""
+patient.telecom.use = ""home""",,TRUE
+Checkout,shipping_full_name,Input (predefined),text,Address,"patient.address[1].line[0]
+patient.address[1].type = ""postal""
+patient.address[1].use = ""temp""",,FALSE
+Checkout,shipping_address1,Input (predefined),text,Address,patient.address[1].line[1],,FALSE
+Checkout,shipping_city,Input (predefined),text,Address,patient.address[1].city,,FALSE
+Checkout,shipping_state,Input (predefined),text,Address,patient.address[1].state,,FALSE
+Checkout,shipping_zip_code,Input (predefined),text,Address,patient.address[1].postalCode,,FALSE
+Checkout,payment_full_name,Input (predefined),text,Address,"patient.address[2].line[0]
+patient.address[2].type = ""postal""
+patient.address[2].use = ""billing""",,FALSE
+Checkout,payment_zip_code,Input (predefined),text,Address,"patient.address[2].postalCode
+patient.address[2].type = ""postal""
+patient.address[2].use = ""billing""",,FALSE
+Checkout,consent_tc,Input (predefined),text,Consent,"consent.status = ""active""
+consent.scope
+consent.provision.type",,FALSE
+Checkout,subscription_id,Component Calculated Variables,text,Invoice,"invoice.identifier
+invoice.type = ""subscriptionId""",,FALSE
+Checkout,payment_completed,Component Calculated Variables,boolean,Invoice,"invoice.status = ""paid""",,FALSE
+Book Your Appointment,scheduling_completed,Component Calculated Variables,boolean,Appointment,"appointment.status = ""booked""
++ links to Scheduling Core",,FALSE
+DQ & Sync visit calculation,mwl_eligibility,,boolean,Observation,"observation.valueBoolean
+observation.code = ""mwl-eligibility""
+observation.status = ""final""
+observation.category = ""administrative""",,FALSE
+DQ & Sync visit calculation,dq_reason,,text,Observation,observation.note,,FALSE
+DQ & Sync visit calculation,sync_visit,,boolean,ServiceRequest,"serviceRequest.code = ""“Synchronous telehealth visit”
+serviceRequest.status = ""requested""
+serviceRequest.intent = ""plan""",,FALSE
+DQ & Sync visit calculation,sync_visit_reason,,text,ServiceRequest,"serviceRequest.note
+serviceRequest.reasonReference",,FALSE
+DQ & Sync visit calculation,clearance_required,,boolean,ServiceRequest,"serviceRequest.code = ""“Medical clearance for MWL/GLP-1”
+serviceRequest.status = ""requested""
+serviceRequest.intent = ""plan""
+serviceRequest.reasonReference",,FALSE
