@@ -1,23 +1,35 @@
-import { Patient, ContactPoint, HumanName, Address, Bundle, BundleEntry, Coverage, Communication } from '@medplum/fhirtypes';
-import { IntakeFormData } from '@/types/intake';
-import { randomUUID } from 'crypto';
+import {
+  Patient,
+  ContactPoint,
+  HumanName,
+  Address,
+  Bundle,
+  BundleEntry,
+  Coverage,
+  Communication,
+} from "@medplum/fhirtypes";
+import { IntakeFormData } from "@/types/intake";
+import { randomUUID } from "crypto";
 
 /**
  * Converts intake form data to a FHIR Patient resource
  */
-export function convertToFHIRPatient(intakeData: IntakeFormData, patientId: string): Patient {
+export function convertToFHIRPatient(
+  intakeData: IntakeFormData,
+  patientId: string
+): Patient {
   const patient: Patient = {
-    resourceType: 'Patient',
+    resourceType: "Patient",
     active: true,
     identifier: [
-          {
-            "system": "https://openloop.org/fhir/patient-ids",
-            "value": patientId
-          }
-        ],
+      {
+        system: "https://openloop.org/fhir/patient-ids",
+        value: patientId,
+      },
+    ],
     name: [
       {
-        use: 'official',
+        use: "official",
         family: intakeData.lastName,
         given: [intakeData.firstName],
       } as HumanName,
@@ -60,22 +72,20 @@ export function convertToFHIRPatient(intakeData: IntakeFormData, patientId: stri
 export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
   const patientId = randomUUID();
   const patient = convertToFHIRPatient(intakeData, patientId);
-  
 
   const entries: BundleEntry[] = [
     {
       resource: patient,
       request: {
-        method: 'POST',
-        url: 'Patient',
+        method: "POST",
+        url: "Patient",
       },
     },
-    
   ];
 
   return {
-    resourceType: 'Bundle',
-    type: 'transaction',
+    resourceType: "Bundle",
+    type: "transaction",
     entry: entries,
   };
 }

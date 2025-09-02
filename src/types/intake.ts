@@ -5,7 +5,7 @@ export interface IntakeFormData {
   email: string;
   phone: string;
   dateOfBirth: string;
-  
+
   // Contact Information
   address: {
     street: string;
@@ -14,14 +14,14 @@ export interface IntakeFormData {
     zipCode: string;
     country: string;
   };
-  
+
   // Emergency Contact
   emergencyContact: {
     name: string;
     relationship: string;
     phone: string;
   };
-  
+
   // Medical Information
   medicalHistory: {
     currentMedications: string[];
@@ -29,24 +29,24 @@ export interface IntakeFormData {
     chronicConditions: string[];
     previousSurgeries: string[];
   };
-  
+
   // Insurance Information
   insurance: {
     provider: string;
     policyNumber: string;
     groupNumber?: string;
   };
-  
+
   // Reason for Visit
   reasonForVisit: string;
   symptoms: string[];
   symptomDuration: string;
   painLevel?: number; // 1-10 scale
-  
+
   // Additional Information
   additionalNotes?: string;
   preferredAppointmentTime?: string;
-  
+
   // Consent and Agreements
   consentToTreatment: boolean;
   privacyPolicyAccepted: boolean;
