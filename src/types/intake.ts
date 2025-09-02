@@ -104,7 +104,6 @@ export interface IntakeFormData {
   // Additional fields from CSV
   phoneNumber?: string; // Will be mapped properly to telecom
   mwlExclusivity?: boolean;
-  glp1MedicationPenImage?: string; // Media resource
   age?: number; // Calculated from dateOfBirth
 }
 

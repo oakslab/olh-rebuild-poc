@@ -15,7 +15,6 @@ import {
   MedicationRequest,
   Appointment,
   ServiceRequest,
-  Media,
   Invoice,
 } from "@medplum/fhirtypes";
 import { IntakeFormData } from "@/types/intake";
@@ -1305,42 +1304,6 @@ export function convertToFHIRAppointment(
 }
 
 /**
- * Converts medication image to FHIR Media resource
- */
-export function convertToFHIRMedia(
-  intakeData: IntakeFormData,
-  patientUrnUuid: string
-): Media | null {
-  if (!intakeData.glp1MedicationPenImage) return null;
-
-  const media: Media = {
-    resourceType: "Media",
-    id: randomUUID(),
-    status: "completed",
-    type: {
-      coding: [
-        {
-          system: "http://terminology.hl7.org/CodeSystem/media-type",
-          code: "image",
-          display: "Image",
-        },
-      ],
-    },
-    subject: {
-      reference: patientUrnUuid,
-    },
-    createdDateTime: new Date().toISOString(),
-    content: {
-      contentType: "image/jpeg",
-      url: intakeData.glp1MedicationPenImage,
-      title: "GLP-1 medication pen/vial image",
-    },
-  };
-
-  return media;
-}
-
-/**
  * Converts additional administrative observations
  */
 export function convertToFHIRAdministrativeObservations(
@@ -1705,19 +1668,6 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
       request: {
         method: "POST",
         url: "Appointment",
-      },
-    });
-  }
-
-  // Add media
-  const media = convertToFHIRMedia(intakeData, patientUrnUuid);
-  if (media) {
-    entries.push({
-      fullUrl: `urn:uuid:${media.id}`,
-      resource: media,
-      request: {
-        method: "POST",
-        url: "Media",
       },
     });
   }

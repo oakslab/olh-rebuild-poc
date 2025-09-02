@@ -97,7 +97,6 @@ export const sampleIntakeData: IntakeFormData = {
   phoneNumber: "+1-555-123-4567", // Alternative phone field
   mwlExclusivity: true,
   lastMwlDose: "2 weeks ago",
-  glp1MedicationPenImage: "https://example.com/medication-pen-image.jpg",
   age: 39, // Calculated from dateOfBirth
   dqReason: "", // No disqualification
   syncVisitReason: "Patient prefers video consultation for initial assessment",

@@ -193,7 +193,6 @@ export async function GET() {
       "Consent - Terms and conditions agreements",
       "Invoice - Pricing and payment information",
       "Appointment - Scheduling information",
-      "Media - Medication images and documentation",
     ],
     endpoints: {
       POST: {
