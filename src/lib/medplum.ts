@@ -20,10 +20,18 @@ export async function initializeMedplum() {
       console.log("Medplum client initialized successfully");
       console.log("medplum.getBaseUrl()", medplum.getBaseUrl());
     } else {
-      console.warn("Medplum credentials not configured. Using demo mode.");
+      console.warn(
+        "Medplum credentials not configured. API requests will fail without proper authentication."
+      );
     }
-  } catch (error) {
-    console.error("Failed to initialize Medplum client:", error);
+  } catch (error: any) {
+    console.error("Failed to initialize Medplum client:", {
+      error: error.message,
+      code: error.code,
+      status: error.response?.status,
+      details: error.response?.data,
+    });
+    // Don't throw here - let individual requests handle authentication failures
   }
 }
 
