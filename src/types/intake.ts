@@ -14,6 +14,10 @@ export interface IntakeFormData {
     state: string;
     zipCode: string;
   };
+
+  // Vital Signs - mapped to Observation resources
+  weight: number; // in pounds
+  height: number; // in inches
 }
 
 export interface IntakeFormResponse {

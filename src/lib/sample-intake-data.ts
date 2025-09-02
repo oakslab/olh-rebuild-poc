@@ -13,6 +13,8 @@ export const sampleIntakeData: IntakeFormData = {
     state: "CA",
     zipCode: "90210",
   },
+  weight: 180,
+  height: 72,
 };
 
 export const invalidIntakeData: Partial<IntakeFormData> = {

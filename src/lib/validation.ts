@@ -87,6 +87,26 @@ export function validateIntakeForm(data: IntakeFormData): ValidationError[] {
     });
   }
 
+  // Weight validation (mapped to Observation resource)
+  if (data.weight === undefined || data.weight === null) {
+    errors.push({ field: "weight", message: "Weight is required" });
+  } else if (data.weight <= 0 || data.weight > 1000) {
+    errors.push({
+      field: "weight",
+      message: "Weight must be between 1 and 1000 pounds",
+    });
+  }
+
+  // Height validation (mapped to Observation resource)
+  if (data.height === undefined || data.height === null) {
+    errors.push({ field: "height", message: "Height is required" });
+  } else if (data.height <= 0 || data.height > 120) {
+    errors.push({
+      field: "height",
+      message: "Height must be between 1 and 120 inches",
+    });
+  }
+
   return errors;
 }
 

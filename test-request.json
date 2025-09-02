@@ -10,5 +10,7 @@
     "city": "Springfield",
     "state": "NY",
     "zipCode": "12345"
-  }
+  },
+  "weight": 135,
+  "height": 65
 }

@@ -5,6 +5,7 @@ import {
   Address,
   Bundle,
   BundleEntry,
+  Observation,
 } from "@medplum/fhirtypes";
 import { IntakeFormData } from "@/types/intake";
 import { randomUUID } from "crypto";
@@ -72,11 +73,120 @@ export function convertToFHIRPatient(
 }
 
 /**
+ * Converts weight data to a FHIR Observation resource
+ */
+export function convertToFHIRWeightObservation(
+  intakeData: IntakeFormData,
+  patientId: string,
+  observationId: string
+): Observation {
+  const observation: Observation = {
+    resourceType: "Observation",
+    id: observationId,
+    status: "final",
+    category: [
+      {
+        coding: [
+          {
+            system:
+              "http://terminology.hl7.org/CodeSystem/observation-category",
+            code: "vital-signs",
+            display: "Vital Signs",
+          },
+        ],
+      },
+    ],
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "29463-7",
+          display: "Body weight",
+        },
+      ],
+    },
+    subject: {
+      reference: `Patient/${patientId}`,
+    },
+    effectiveDateTime: new Date().toISOString(),
+    valueQuantity: {
+      value: intakeData.weight,
+      unit: "lb",
+      system: "http://unitsofmeasure.org",
+      code: "[lb_av]",
+    },
+  };
+
+  return observation;
+}
+
+/**
+ * Converts height data to a FHIR Observation resource
+ */
+export function convertToFHIRHeightObservation(
+  intakeData: IntakeFormData,
+  patientId: string,
+  observationId: string
+): Observation {
+  const observation: Observation = {
+    resourceType: "Observation",
+    id: observationId,
+    status: "final",
+    category: [
+      {
+        coding: [
+          {
+            system:
+              "http://terminology.hl7.org/CodeSystem/observation-category",
+            code: "vital-signs",
+            display: "Vital Signs",
+          },
+        ],
+      },
+    ],
+    code: {
+      coding: [
+        {
+          system: "http://loinc.org",
+          code: "8302-2",
+          display: "Body height",
+        },
+      ],
+    },
+    subject: {
+      reference: `Patient/${patientId}`,
+    },
+    effectiveDateTime: new Date().toISOString(),
+    valueQuantity: {
+      value: intakeData.height,
+      unit: "in",
+      system: "http://unitsofmeasure.org",
+      code: "[in_i]",
+    },
+  };
+
+  return observation;
+}
+
+/**
  * Creates a FHIR Bundle containing all intake-related resources
  */
 export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
   const patientId = randomUUID();
+  const weightObservationId = randomUUID();
+  const heightObservationId = randomUUID();
+
   const patient = convertToFHIRPatient(intakeData, patientId);
+  const weightObservation = convertToFHIRWeightObservation(
+    intakeData,
+    patientId,
+    weightObservationId
+  );
+  const heightObservation = convertToFHIRHeightObservation(
+    intakeData,
+    patientId,
+    heightObservationId
+  );
 
   const entries: BundleEntry[] = [
     {
@@ -84,6 +194,20 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
       request: {
         method: "POST",
         url: "Patient",
+      },
+    },
+    {
+      resource: weightObservation,
+      request: {
+        method: "POST",
+        url: "Observation",
+      },
+    },
+    {
+      resource: heightObservation,
+      request: {
+        method: "POST",
+        url: "Observation",
       },
     },
   ];

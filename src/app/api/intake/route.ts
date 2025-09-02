@@ -100,8 +100,8 @@ export async function GET() {
     ],
     fhirResources: [
       "Patient - Demographics and contact information",
-      "Coverage - Insurance information",
-      "Communication - Medical history and visit details",
+      "Observation - Weight measurement (LOINC code 29463-7)",
+      "Observation - Height measurement (LOINC code 8302-2)",
     ],
     endpoints: {
       POST: {
@@ -116,6 +116,8 @@ export async function GET() {
           "dateOfBirth",
           "gender",
           "address",
+          "weight",
+          "height",
         ],
       },
     },
