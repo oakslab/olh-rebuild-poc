@@ -6,6 +6,7 @@ export const sampleIntakeData: IntakeFormData = {
   email: "john.doe@example.com",
   phone: "+1-555-123-4567",
   dateOfBirth: "1985-06-15",
+  gender: "male",
 
   address: {
     street: "123 Main Street",

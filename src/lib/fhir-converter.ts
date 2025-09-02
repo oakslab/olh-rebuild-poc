@@ -5,8 +5,6 @@ import {
   Address,
   Bundle,
   BundleEntry,
-  Coverage,
-  Communication,
 } from "@medplum/fhirtypes";
 import { IntakeFormData } from "@/types/intake";
 import { randomUUID } from "crypto";
@@ -34,33 +32,40 @@ export function convertToFHIRPatient(
         given: [intakeData.firstName],
       } as HumanName,
     ],
-    gender: "male",
-    birthDate: "1995-04-30",
-    // telecom: [
-    //   {
-    //     system: 'phone',
-    //     value: intakeData.phone,
-    //     use: 'mobile',
-    //   } as ContactPoint,
-    //   {
-    //     system: 'email',
-    //     value: intakeData.email,
-    //     use: 'home',
-    //   } as ContactPoint,
-    // ],
-    // gender: 'unknown', // Could be added to intake form
-    // birthDate: intakeData.dateOfBirth,
-    // address: [
-    //   {
-    //     use: 'home',
-    //     type: 'physical',
-    //     line: [intakeData.address.street],
-    //     city: intakeData.address.city,
-    //     state: intakeData.address.state,
-    //     postalCode: intakeData.address.zipCode,
-    //     country: intakeData.address.country,
-    //   } as Address,
-    // ],
+    gender: intakeData.gender as "male" | "female" | "other" | "unknown",
+    birthDate: intakeData.dateOfBirth,
+    telecom: [
+      {
+        system: "email",
+        value: intakeData.email,
+        use: "home",
+      } as ContactPoint,
+      {
+        system: "phone",
+        value: intakeData.phone,
+        use: "home",
+      } as ContactPoint,
+    ],
+    address: [
+      {
+        use: "home",
+        type: "physical",
+        line: [intakeData.address.street],
+        city: intakeData.address.city,
+        state: intakeData.address.state,
+        postalCode: intakeData.address.zipCode,
+        country: "US",
+      } as Address,
+      {
+        use: "temp",
+        type: "postal",
+        line: [intakeData.address.street],
+        city: intakeData.address.city,
+        state: intakeData.address.state,
+        postalCode: intakeData.address.zipCode,
+        country: "US",
+      } as Address,
+    ],
   };
 
   return patient;

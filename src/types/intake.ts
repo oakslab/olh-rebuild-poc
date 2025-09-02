@@ -5,6 +5,7 @@ export interface IntakeFormData {
   email: string;
   phone: string;
   dateOfBirth: string;
+  gender: string;
 
   // Contact Information
   address: {
