@@ -77,7 +77,7 @@ export function convertToFHIRPatient(
  */
 export function convertToFHIRWeightObservation(
   intakeData: IntakeFormData,
-  patientId: string,
+  patientUrnUuid: string,
   observationId: string
 ): Observation {
   const observation: Observation = {
@@ -106,7 +106,7 @@ export function convertToFHIRWeightObservation(
       ],
     },
     subject: {
-      reference: `Patient/${patientId}`,
+      reference: patientUrnUuid,
     },
     effectiveDateTime: new Date().toISOString(),
     valueQuantity: {
@@ -125,7 +125,7 @@ export function convertToFHIRWeightObservation(
  */
 export function convertToFHIRHeightObservation(
   intakeData: IntakeFormData,
-  patientId: string,
+  patientUrnUuid: string,
   observationId: string
 ): Observation {
   const observation: Observation = {
@@ -154,7 +154,7 @@ export function convertToFHIRHeightObservation(
       ],
     },
     subject: {
-      reference: `Patient/${patientId}`,
+      reference: patientUrnUuid,
     },
     effectiveDateTime: new Date().toISOString(),
     valueQuantity: {
@@ -176,20 +176,26 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
   const weightObservationId = randomUUID();
   const heightObservationId = randomUUID();
 
+  // Create URN UUID for internal references
+  const patientUrnUuid = `urn:uuid:${patientId}`;
+  const weightObservationUrnUuid = `urn:uuid:${weightObservationId}`;
+  const heightObservationUrnUuid = `urn:uuid:${heightObservationId}`;
+
   const patient = convertToFHIRPatient(intakeData, patientId);
   const weightObservation = convertToFHIRWeightObservation(
     intakeData,
-    patientId,
+    patientUrnUuid,
     weightObservationId
   );
   const heightObservation = convertToFHIRHeightObservation(
     intakeData,
-    patientId,
+    patientUrnUuid,
     heightObservationId
   );
 
   const entries: BundleEntry[] = [
     {
+      fullUrl: patientUrnUuid,
       resource: patient,
       request: {
         method: "POST",
@@ -197,6 +203,7 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
       },
     },
     {
+      fullUrl: weightObservationUrnUuid,
       resource: weightObservation,
       request: {
         method: "POST",
@@ -204,6 +211,7 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
       },
     },
     {
+      fullUrl: heightObservationUrnUuid,
       resource: heightObservation,
       request: {
         method: "POST",
