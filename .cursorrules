@@ -1,0 +1,197 @@
+# Cursor Rules for Open Loop Healthcare POC
+
+## Project Overview
+
+This is a healthcare intake system POC with FHIR R4 compliance, integrating with Medplum for healthcare data management. The project handles patient intake forms and converts them to standardized healthcare data formats.
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript (strict mode)
+- **Styling**: Tailwind CSS 4 with shadcn/ui components
+- **UI Library**: Radix UI primitives with custom variants
+- **Healthcare**: FHIR R4 compliance via @medplum/core and @medplum/fhirtypes
+- **Utilities**: clsx, tailwind-merge, class-variance-authority
+- **Icons**: Lucide React
+- **Fonts**: Geist Sans and Geist Mono
+
+## Code Style & Standards
+
+### TypeScript
+
+- Use strict TypeScript with explicit types
+- Prefer interfaces over types for object shapes
+- Use proper FHIR type definitions from @medplum/fhirtypes
+- Always define return types for functions
+- Use `export interface` for shared types in `/src/types/`
+
+### React Patterns
+
+- Use functional components with TypeScript
+- Prefer `export default function ComponentName()` for pages and main components
+- Use named exports for utilities and types
+- Always destructure props with proper TypeScript interfaces
+- Use proper React 19 patterns and hooks
+
+### File Organization
+
+```
+src/
+├── app/                 # Next.js App Router pages and API routes
+│   ├── api/            # API endpoints with route.ts pattern
+│   ├── globals.css     # Global Tailwind styles
+│   ├── layout.tsx      # Root layout with font configuration
+│   └── page.tsx        # Pages following Next.js 15 conventions
+├── components/
+│   └── ui/             # shadcn/ui components with variants
+├── lib/                # Utilities and business logic
+│   ├── fhir-converter.ts   # FHIR resource conversion functions
+│   ├── medplum.ts          # Medplum client configuration
+│   ├── utils.ts            # General utilities (cn function)
+│   └── validation.ts       # Form validation logic
+└── types/              # TypeScript type definitions
+    └── intake.ts       # Healthcare intake form interfaces
+```
+
+### API Routes
+
+- Use Next.js 15 App Router API conventions (`route.ts`)
+- Always validate input with proper error handling
+- Return consistent response formats with TypeScript interfaces
+- Use proper HTTP status codes
+- Handle Medplum API errors gracefully with detailed error messages
+- Include comprehensive API documentation in GET endpoints
+
+### FHIR & Healthcare Standards
+
+- Follow FHIR R4 specifications strictly
+- Use proper LOINC codes for observations (weight: 29463-7, height: 8302-2, BMI: 39156-5)
+- Use SNOMED CT codes where applicable
+- Implement proper healthcare data validation
+- Use UUIDs for all resource identifiers
+- Follow healthcare terminology standards
+- Convert intake data to proper FHIR Bundle transactions
+
+### Component Patterns
+
+- Use shadcn/ui component patterns with class-variance-authority
+- Implement proper variant systems using `cva()`
+- Use `cn()` utility for conditional classes
+- Follow Radix UI patterns for accessibility
+- Use `forwardRef` for components that need DOM access
+- Implement proper TypeScript prop interfaces
+
+### Styling Guidelines
+
+- Use Tailwind CSS 4 with CSS variables
+- Follow shadcn/ui design system (New York style)
+- Use semantic class names and component variants
+- Implement proper responsive design patterns
+- Use Tailwind utilities over custom CSS
+- Follow consistent spacing and color patterns
+
+### Validation & Error Handling
+
+- Validate all healthcare data inputs
+- Use proper TypeScript validation patterns
+- Return structured validation errors
+- Handle Medplum API errors with specific status codes
+- Provide meaningful error messages for users
+- Log detailed errors for debugging
+
+### Import Patterns
+
+```typescript
+// External libraries first
+import { NextRequest, NextResponse } from "next/server";
+import { Patient, Bundle } from "@medplum/fhirtypes";
+
+// Internal imports with proper aliases
+import { IntakeFormData } from "@/types/intake";
+import { medplum } from "@/lib/medplum";
+import { createIntakeBundle } from "@/lib/fhir-converter";
+import { cn } from "@/lib/utils";
+```
+
+### Environment & Configuration
+
+- Use proper environment variable patterns
+- Configure Medplum client properly
+- Handle development vs production configurations
+- Use proper TypeScript configuration with strict mode
+- Follow Next.js 15 configuration patterns
+
+## Specific Guidelines
+
+### FHIR Conversion Functions
+
+- Create separate conversion functions for each FHIR resource type
+- Use proper resource identifiers and references
+- Follow FHIR Bundle transaction patterns
+- Include proper metadata and timestamps
+- Use standardized medical coding systems
+
+### API Error Responses
+
+```typescript
+interface IntakeFormResponse {
+  success: boolean;
+  message: string;
+  submissionId?: string;
+  errors?: Record<string, string[]>;
+}
+```
+
+### Component Variants
+
+```typescript
+const buttonVariants = cva("base-classes", {
+  variants: {
+    variant: { default: "...", destructive: "..." },
+    size: { default: "...", sm: "...", lg: "..." },
+  },
+  defaultVariants: { variant: "default", size: "default" },
+});
+```
+
+### Healthcare Data Validation
+
+- Validate required fields per healthcare standards
+- Check data formats (dates, phone numbers, emails)
+- Ensure FHIR resource compliance
+- Validate medical codes and terminologies
+
+## Performance & Best Practices
+
+- Use proper Next.js 15 optimization patterns
+- Implement efficient FHIR Bundle creation
+- Handle large healthcare datasets properly
+- Use proper TypeScript compilation optimizations
+- Follow React 19 performance best practices
+
+## Security & Compliance
+
+- Follow HIPAA guidelines for healthcare data
+- Implement proper data validation and sanitization
+- Use secure API patterns for healthcare endpoints
+- Handle PHI (Protected Health Information) appropriately
+- Follow healthcare data storage best practices
+
+## Development Workflow
+
+- Use ESLint with Next.js and Prettier configurations
+- Run TypeScript in strict mode
+- Test FHIR resource generation and validation
+- Validate Medplum integration thoroughly
+- Follow git workflow with descriptive commits
+
+## Common Patterns to Follow
+
+1. Always use TypeScript interfaces for healthcare data
+2. Convert form data to FHIR resources using dedicated converter functions
+3. Handle Medplum API responses with proper error handling
+4. Use consistent validation patterns across all forms
+5. Follow shadcn/ui component patterns for UI consistency
+6. Implement proper healthcare data logging and monitoring
+
+Remember: This is healthcare software handling PHI, so always prioritize data validation, security, and FHIR compliance in all implementations.
