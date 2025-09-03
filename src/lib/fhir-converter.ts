@@ -1430,7 +1430,14 @@ export function convertToFHIRAdministrativeObservations(
 /**
  * Creates a FHIR Bundle containing all intake-related resources
  */
-export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
+export interface IntakeBundleResult {
+  bundle: Bundle;
+  patientId: string;
+}
+
+export function createIntakeBundle(
+  intakeData: IntakeFormData
+): IntakeBundleResult {
   const patientId = randomUUID();
   const patientUrnUuid = `urn:uuid:${patientId}`;
 
@@ -1680,8 +1687,11 @@ export function createIntakeBundle(intakeData: IntakeFormData): Bundle {
   }
 
   return {
-    resourceType: "Bundle",
-    type: "transaction",
-    entry: entries,
+    bundle: {
+      resourceType: "Bundle",
+      type: "transaction",
+      entry: entries,
+    },
+    patientId,
   };
 }

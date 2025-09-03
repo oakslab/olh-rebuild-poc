@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { IntakeFormData, IntakeFormResponse } from "@/types/intake";
 import { validateIntakeForm, formatValidationErrors } from "@/lib/validation";
 import { medplum } from "@/lib/medplum";
-import { createIntakeBundle } from "@/lib/fhir-converter";
+import { createIntakeBundle, IntakeBundleResult } from "@/lib/fhir-converter";
 import { randomUUID } from "crypto";
 import { withAuth } from "@/lib/auth-middleware";
+import { BundleEntry } from "@medplum/fhirtypes";
 
 export const POST = withAuth(async function POST(request: NextRequest) {
   try {
@@ -29,14 +30,42 @@ export const POST = withAuth(async function POST(request: NextRequest) {
     const submissionId = randomUUID();
 
     // Create FHIR bundle from intake data
-    const fhirBundle = createIntakeBundle(body);
+    const intakeResult: IntakeBundleResult = createIntakeBundle(body);
+    const { bundle: fhirBundle, patientId } = intakeResult;
 
     let medplumResponse;
+    let actualPatientId: string | undefined;
+
     try {
       // Submit to Medplum FHIR server
       medplumResponse = await medplum.executeBatch(fhirBundle);
 
       console.log("medplumResponse", JSON.stringify(medplumResponse, null, 2));
+
+      // Extract the actual patient ID from the response
+      if (medplumResponse.entry && medplumResponse.entry.length > 0) {
+        console.log("Medplum response entries:", medplumResponse.entry.length);
+
+        // Find the Patient resource in the response
+        const patientEntry = medplumResponse.entry.find(
+          (entry: BundleEntry) => entry.resource?.resourceType === "Patient"
+        );
+
+        if (patientEntry?.resource?.id) {
+          actualPatientId = patientEntry.resource.id;
+          console.log("Found patient ID in response:", actualPatientId);
+        } else {
+          console.log("No patient entry found in response");
+          console.log(
+            "Available resource types:",
+            medplumResponse.entry.map(
+              (entry: BundleEntry) => entry.resource?.resourceType
+            )
+          );
+        }
+      } else {
+        console.log("No entries in Medplum response");
+      }
 
       console.log("Successfully submitted to Medplum:", {
         submissionId,
@@ -44,9 +73,10 @@ export const POST = withAuth(async function POST(request: NextRequest) {
         email: body.email,
         gender: body.gender,
         fhirBundleId: medplumResponse.id,
+        actualPatientId,
         timestamp: new Date().toISOString(),
       });
-    } catch (medplumError: any) {
+    } catch (medplumError: unknown) {
       console.error("Medplum submission failed:", medplumError);
 
       // Create meaningful error message based on the error type
@@ -54,10 +84,17 @@ export const POST = withAuth(async function POST(request: NextRequest) {
         "Failed to submit to healthcare system. Please try again later.";
       let statusCode = 500;
 
-      if (medplumError?.response) {
+      if (
+        medplumError &&
+        typeof medplumError === "object" &&
+        "response" in medplumError
+      ) {
         // HTTP error response from Medplum API
-        const status = medplumError.response.status;
-        const responseData = medplumError.response.data;
+        const error = medplumError as {
+          response: { status: number; data: unknown };
+        };
+        const status = error.response.status;
+        const responseData = error.response.data;
 
         switch (status) {
           case 400:
@@ -99,12 +136,24 @@ export const POST = withAuth(async function POST(request: NextRequest) {
         }
 
         // Include additional error details if available
-        if (responseData?.issue) {
-          console.error("FHIR OperationOutcome:", responseData.issue);
+        if (
+          responseData &&
+          typeof responseData === "object" &&
+          "issue" in responseData
+        ) {
+          const data = responseData as {
+            issue: Array<{ diagnostics?: string; details?: { text?: string } }>;
+          };
+          console.error("FHIR OperationOutcome:", data.issue);
           // For validation errors, provide more specific feedback
-          if (status === 400 && responseData.issue.length > 0) {
-            const issues = responseData.issue
-              .map((issue: any) => issue.diagnostics || issue.details?.text)
+          if (status === 400 && data.issue.length > 0) {
+            const issues = data.issue
+              .map(
+                (issue: {
+                  diagnostics?: string;
+                  details?: { text?: string };
+                }) => issue.diagnostics || issue.details?.text
+              )
               .filter(Boolean);
             if (issues.length > 0) {
               errorMessage = `Data validation failed: ${issues.join(", ")}`;
@@ -112,23 +161,36 @@ export const POST = withAuth(async function POST(request: NextRequest) {
           }
         }
       } else if (
-        medplumError?.code === "ECONNREFUSED" ||
-        medplumError?.code === "ENOTFOUND"
+        medplumError &&
+        typeof medplumError === "object" &&
+        "code" in medplumError
       ) {
-        errorMessage =
-          "Cannot connect to healthcare system. Please check your internet connection and try again.";
-        statusCode = 502;
-      } else if (medplumError?.code === "ETIMEDOUT") {
-        errorMessage =
-          "Request to healthcare system timed out. Please try again.";
-        statusCode = 504;
+        const error = medplumError as { code: string; message?: string };
+
+        if (error.code === "ECONNREFUSED" || error.code === "ENOTFOUND") {
+          errorMessage =
+            "Cannot connect to healthcare system. Please check your internet connection and try again.";
+          statusCode = 502;
+        } else if (error.code === "ETIMEDOUT") {
+          errorMessage =
+            "Request to healthcare system timed out. Please try again.";
+          statusCode = 504;
+        }
       } else if (
-        medplumError?.message?.includes("credentials") ||
-        medplumError?.message?.includes("authentication")
+        medplumError &&
+        typeof medplumError === "object" &&
+        "message" in medplumError
       ) {
-        errorMessage =
-          "Healthcare system authentication failed. Please contact support.";
-        statusCode = 502;
+        const error = medplumError as { message: string };
+
+        if (
+          error.message.includes("credentials") ||
+          error.message.includes("authentication")
+        ) {
+          errorMessage =
+            "Healthcare system authentication failed. Please contact support.";
+          statusCode = 502;
+        }
       }
 
       const response: IntakeFormResponse = {
@@ -145,6 +207,7 @@ export const POST = withAuth(async function POST(request: NextRequest) {
       message:
         "Your intake form has been successfully submitted to our FHIR-compliant healthcare system. We will contact you shortly to schedule your appointment.",
       submissionId,
+      patientId: actualPatientId || patientId, // Use actual Medplum ID if available, fallback to generated ID
     };
 
     return NextResponse.json(response, { status: 201 });

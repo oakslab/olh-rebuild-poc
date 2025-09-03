@@ -111,6 +111,7 @@ export interface IntakeFormResponse {
   success: boolean;
   message: string;
   submissionId?: string;
+  patientId?: string;
   errors?: Record<string, string[]>;
 }
 

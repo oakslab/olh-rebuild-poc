@@ -15,7 +15,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Patient Detail Page</CardTitle>
@@ -84,6 +84,31 @@ export default function Home() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Test Intake Form</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Test the intake form submission with sample data.
+              </p>
+
+              <div className="space-y-2">
+                <h4 className="font-semibold">Features:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Submit test patient data</li>
+                  <li>• View API response</li>
+                  <li>• Test authentication flow</li>
+                  <li>• Validate FHIR resource creation</li>
+                </ul>
+              </div>
+
+              <Button asChild className="w-full">
+                <Link href="/test">Open Test Page</Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
