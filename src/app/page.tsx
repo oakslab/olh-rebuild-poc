@@ -1,106 +1,132 @@
-import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="container mx-auto p-8 space-y-8">
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold">Open Loop Healthcare POC</h1>
+        <p className="text-xl text-muted-foreground">
+          FHIR R4 Compliant Healthcare Intake System
+        </p>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <Button asChild>
-            <a
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                className="dark:invert mr-2"
-                src="/vercel.svg"
-                alt="Vercel logomark"
-                width={20}
-                height={20}
-              />
-              Deploy now
-            </a>
-          </Button>
-          <Button variant="outline" asChild>
-            <a
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read our docs
-            </a>
-          </Button>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Patient Detail Page</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              View comprehensive patient data organized into categories based on
+              FHIR resource types.
+            </p>
+
+            <div className="space-y-2">
+              <h4 className="font-semibold">Features:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Patient Demographics & Vital Signs</li>
+                <li>• Medical History (Conditions, Procedures, Allergies)</li>
+                <li>• Medications & Treatment Plans</li>
+                <li>• Goals & Lifestyle Factors</li>
+                <li>• Laboratory Results & Observations</li>
+                <li>• Treatment Plans & Care Coordination</li>
+                <li>• Administrative Records & Eligibility</li>
+              </ul>
+            </div>
+
+            <div className="pt-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                To view a patient, navigate to:{" "}
+                <code className="bg-muted px-1 py-0.5 rounded">
+                  /patient/[patient-id]
+                </code>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Replace [patient-id] with an actual patient ID from your Medplum
+                instance.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>API Endpoints</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Healthcare data APIs with FHIR R4 compliance.
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <h4 className="font-semibold text-sm">Patient Data</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mt-1">
+                  GET /api/patient/[id]
+                </code>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Fetch comprehensive patient data from Medplum
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm">Intake Form</h4>
+                <code className="text-xs bg-muted px-2 py-1 rounded block mt-1">
+                  POST /api/intake
+                </code>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Submit patient intake forms as FHIR bundles
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>FHIR Resource Mapping</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+              <h4 className="font-semibold mb-2">Core Resources</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Patient</li>
+                <li>• Observation</li>
+                <li>• Condition</li>
+                <li>• Procedure</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Medications</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• MedicationStatement</li>
+                <li>• MedicationRequest</li>
+                <li>• AllergyIntolerance</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-2">Care Coordination</h4>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Goal</li>
+                <li>• ServiceRequest</li>
+                <li>• Appointment</li>
+                <li>• Consent</li>
+                <li>• Invoice</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="text-center">
+        <p className="text-sm text-muted-foreground">
+          Built with Next.js 15, TypeScript, Tailwind CSS, and shadcn/ui
+        </p>
+      </div>
     </div>
   );
 }
