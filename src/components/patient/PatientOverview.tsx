@@ -52,14 +52,33 @@ export function PatientOverview({
     return `${given} ${family}`.trim();
   };
 
-  const formatAddress = (address: Patient["address"]): string => {
-    if (!address || address.length === 0) return "No address on file";
-    const primaryAddress = address[0];
-    const line = primaryAddress.line?.join(", ") || "";
-    const city = primaryAddress.city || "";
-    const state = primaryAddress.state || "";
-    const postalCode = primaryAddress.postalCode || "";
+  const formatAddress = (
+    address: Patient["address"],
+    index: number = 0
+  ): string => {
+    if (!address || address.length <= index) return "Not provided";
+    const targetAddress = address[index];
+    const line = targetAddress.line?.join(", ") || "";
+    const city = targetAddress.city || "";
+    const state = targetAddress.state || "";
+    const postalCode = targetAddress.postalCode || "";
     return `${line}, ${city}, ${state} ${postalCode}`.replace(/^, |, $/, "");
+  };
+
+  const getAddressType = (
+    address: Patient["address"],
+    index: number = 0
+  ): string => {
+    if (!address || address.length <= index) return "";
+    const targetAddress = address[index];
+    const type = targetAddress.type || "unknown";
+    const use = targetAddress.use || "";
+
+    if (type === "physical" && use === "home") return "Physical Address";
+    if (type === "postal" && use === "temp") return "Shipping Address";
+    if (type === "postal" && use === "billing") return "Billing Address";
+
+    return `${type} Address (${use})`;
   };
 
   const formatTelecom = (
@@ -132,12 +151,45 @@ export function PatientOverview({
               </dd>
             </div>
           </div>
+
+          {/* Addresses Section */}
           <Separator />
-          <div>
-            <dt className="text-sm font-medium text-muted-foreground">
-              Address
-            </dt>
-            <dd className="text-lg">{formatAddress(patient.address)}</dd>
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-muted-foreground">
+              Addresses
+            </h4>
+
+            {/* Physical Address */}
+            <div className="p-3 border rounded-lg">
+              <dt className="text-sm font-medium text-muted-foreground mb-1">
+                {getAddressType(patient.address, 0)}
+              </dt>
+              <dd className="text-base">{formatAddress(patient.address, 0)}</dd>
+            </div>
+
+            {/* Shipping Address */}
+            {patient.address && patient.address.length > 1 && (
+              <div className="p-3 border rounded-lg">
+                <dt className="text-sm font-medium text-muted-foreground mb-1">
+                  {getAddressType(patient.address, 1)}
+                </dt>
+                <dd className="text-base">
+                  {formatAddress(patient.address, 1)}
+                </dd>
+              </div>
+            )}
+
+            {/* Billing Address */}
+            {patient.address && patient.address.length > 2 && (
+              <div className="p-3 border rounded-lg">
+                <dt className="text-sm font-medium text-muted-foreground mb-1">
+                  {getAddressType(patient.address, 2)}
+                </dt>
+                <dd className="text-base">
+                  {formatAddress(patient.address, 2)}
+                </dd>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
