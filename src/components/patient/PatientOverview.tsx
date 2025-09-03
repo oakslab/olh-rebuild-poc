@@ -279,32 +279,6 @@ export function PatientOverview({
           </div>
         </CardContent>
       </Card>
-
-      {/* Patient Identifiers */}
-      {patient.identifier && patient.identifier.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Patient Identifiers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {patient.identifier.map((id, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center p-2 bg-muted rounded"
-                >
-                  <span className="text-sm font-medium">
-                    {id.type?.text || id.system || "Identifier"}
-                  </span>
-                  <code className="text-sm bg-background px-2 py-1 rounded">
-                    {id.value}
-                  </code>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
