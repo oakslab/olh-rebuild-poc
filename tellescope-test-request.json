@@ -1,0 +1,86 @@
+{
+  "answers": [
+    { "key": "height_feet", "value": 5 },
+    { "key": "height_inches", "value": 6 },
+    { "key": "height", "value": 66 },
+    { "key": "ts_enduser_Partner", "value": "GLPONE-OAKS" },
+    { "key": "weight", "value": 200 },
+    {
+      "key": "what_is_your_weight_loss_goal",
+      "value": "Lose 1–20 lbs for good"
+    },
+    { "key": "bmi", "value": 32.3 },
+    { "key": "gender", "value": "Male" },
+    {
+      "key": "what_are_the_main_reasons_you_want_to_make_a_change",
+      "value": [
+        "I want to increase my life expectancy",
+        "I want to improve my appearance"
+      ]
+    },
+    { "key": "do_any_of_the_following_apply_to_you", "value": ["none"] },
+    { "key": "do_you_have_any_medication_allergies", "value": false },
+    {
+      "key": "are_you_currently_taking_or_have_recently_within_the_last_12_months_taken_medication(s)_for_weight_loss",
+      "value": false
+    },
+    { "key": "do_you_currently_take_any_medications", "value": false },
+    { "key": "taken_opiate_medications_within_last_3_months", "value": false },
+    {
+      "key": "have_you_had_prior_bariatric_weight_loss_surgery_or_any_abdominal_pelvic_surgeries",
+      "value": false
+    },
+    { "key": "ever_tried_weight_management_program", "value": false },
+    {
+      "key": "patient_willing_to",
+      "value": [
+        "Increase your physical activity alongside medication, if clinically appropriate",
+        "Reduce your caloric intake alongside medication, if clinically appropriate"
+      ]
+    },
+    { "key": "weight_changed_in_last_year", "value": "Lost a little" },
+    { "key": "average_blood_pressue_range", "value": "<120/80 (Normal)" },
+    {
+      "key": "average_resting_heart_rate",
+      "value": "60-100 beats per minute (Normal)"
+    },
+    {
+      "key": "patient_concerned_about",
+      "value": ["May help maintain muscle mass", "Does not require injections"]
+    },
+    { "key": "further_information_for_our_medical_team", "value": false },
+    { "key": "dateOfBirth", "value": "1999-07-05" },
+    { "key": "age", "value": 26 },
+    { "key": "first_name", "value": "TTTTTTTT" },
+    { "key": "last_name", "value": "EEEEEEEE" },
+    { "key": "state", "value": "NY" },
+    { "key": "email", "value": "tonda+test1@oakslab.com" },
+    { "key": "phone", "value": "(327) 843-7567" },
+    {
+      "key": "address",
+      "value": {
+        "address_1": "gdfg",
+        "state": "NY",
+        "city": "gfdgf",
+        "postal_code": "55555"
+      }
+    },
+    { "key": "mwl_modality", "value": "async_visit" },
+    { "key": "ts_enduser_smsConsent", "value": "TRUE" },
+    { "key": "email_subscription_checkbox", "value": true },
+    {
+      "key": "product",
+      "value": "Personalized Care – GLP-1 Injectable based (Semaglutide)"
+    },
+    { "key": "total_price", "value": "399.00" }
+  ],
+  "responder_uuid": "e961a65f-afcc-415b-9f2f-5201bc5ace9a",
+  "flow_label": "patient-onboarding",
+  "variant_label": "main",
+  "variant_uuid": "ca61f222-96ec-4d5b-8b3f-af8f14d1889f",
+  "finalized": true,
+  "created_at": "2025-09-03T11:41:36.626+00:00",
+  "experiment_uuid": null,
+  "stripeCustomerId": "cus_SzDViDpSYDsCxk",
+  "service_type": "macro_mwl"
+}
