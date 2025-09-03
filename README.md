@@ -1,4 +1,4 @@
-# Open Loop Healthcare POC
+# Data Architecture PoC
 
 A FHIR R4 compliant healthcare intake system built with Next.js 15, TypeScript, and Medplum integration. This application handles patient intake forms and converts them to standardized healthcare data formats with secure authentication.
 

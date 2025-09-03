@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Open Loop Data Architecture POC",
+  title: "Data Architecture PoC",
   description: "",
 };
 

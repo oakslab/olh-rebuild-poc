@@ -9,7 +9,7 @@ export default function Home() {
       <Header />
       <div className="container mx-auto p-8 space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Open Loop Healthcare POC</h1>
+          <h1 className="text-4xl font-bold">Data Architecture PoC</h1>
           <p className="text-xl text-muted-foreground">
             FHIR R4 Compliant Healthcare Intake System
           </p>

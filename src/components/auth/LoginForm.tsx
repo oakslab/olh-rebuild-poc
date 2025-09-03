@@ -43,7 +43,7 @@ export default function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Open Loop Healthcare</CardTitle>
+          <CardTitle className="text-2xl">Data Architecture PoC</CardTitle>
           <p className="text-muted-foreground">Sign in to access the system</p>
         </CardHeader>
         <CardContent>
