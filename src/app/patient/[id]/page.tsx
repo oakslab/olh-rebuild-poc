@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import Header from "@/components/layout/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -186,127 +187,133 @@ export default function PatientDetailPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {formatName(data.patient.name)}
-          </h1>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant={data.patient.active ? "success" : "secondary"}>
-              {data.patient.active ? "Active" : "Inactive"}
-            </Badge>
-            <span className="text-muted-foreground">ID: {patientId}</span>
+    <>
+      <Header />
+      <div className="container mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {formatName(data.patient.name)}
+            </h1>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={data.patient.active ? "success" : "secondary"}>
+                {data.patient.active ? "Active" : "Inactive"}
+              </Badge>
+              <span className="text-muted-foreground">ID: {patientId}</span>
+            </div>
           </div>
+          <Button onClick={handleRefresh} variant="outline">
+            Refresh Data
+          </Button>
         </div>
-        <Button onClick={handleRefresh} variant="outline">
-          Refresh Data
-        </Button>
+
+        {/* Tabs */}
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-7">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="medical-history">
+              Medical History
+              {dataCounts.conditions +
+                dataCounts.procedures +
+                dataCounts.allergies >
+                0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.conditions +
+                    dataCounts.procedures +
+                    dataCounts.allergies}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="medications">
+              Medications
+              {dataCounts.medications + dataCounts.medicationRequests > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.medications + dataCounts.medicationRequests}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="goals-lifestyle">
+              Goals & Lifestyle
+              {dataCounts.goals + dataCounts.socialHistory > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.goals + dataCounts.socialHistory}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="lab-results">
+              Lab Results
+              {dataCounts.labResults > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.labResults}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="treatment-plan">
+              Treatment & Care
+              {dataCounts.serviceRequests + dataCounts.appointments > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.serviceRequests + dataCounts.appointments}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="administrative">
+              Administrative
+              {dataCounts.administrative > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {dataCounts.administrative}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            <PatientOverview
+              patient={data.patient}
+              observations={data.observations}
+            />
+          </TabsContent>
+
+          <TabsContent value="medical-history" className="space-y-4">
+            <MedicalHistory
+              conditions={data.conditions}
+              procedures={data.procedures}
+              allergies={data.allergies}
+            />
+          </TabsContent>
+
+          <TabsContent value="medications" className="space-y-4">
+            <Medications
+              medicationStatements={data.medicationStatements}
+              medicationRequests={data.medicationRequests}
+            />
+          </TabsContent>
+
+          <TabsContent value="goals-lifestyle" className="space-y-4">
+            <GoalsLifestyle
+              goals={data.goals}
+              observations={data.observations}
+            />
+          </TabsContent>
+
+          <TabsContent value="lab-results" className="space-y-4">
+            <LaboratoryResults observations={data.observations} />
+          </TabsContent>
+
+          <TabsContent value="treatment-plan" className="space-y-4">
+            <TreatmentPlan
+              serviceRequests={data.serviceRequests}
+              appointments={data.appointments}
+              consents={data.consents}
+              invoices={data.invoices}
+            />
+          </TabsContent>
+
+          <TabsContent value="administrative" className="space-y-4">
+            <Administrative observations={data.observations} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7 lg:grid-cols-7">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="medical-history">
-            Medical History
-            {dataCounts.conditions +
-              dataCounts.procedures +
-              dataCounts.allergies >
-              0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.conditions +
-                  dataCounts.procedures +
-                  dataCounts.allergies}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="medications">
-            Medications
-            {dataCounts.medications + dataCounts.medicationRequests > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.medications + dataCounts.medicationRequests}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="goals-lifestyle">
-            Goals & Lifestyle
-            {dataCounts.goals + dataCounts.socialHistory > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.goals + dataCounts.socialHistory}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="lab-results">
-            Lab Results
-            {dataCounts.labResults > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.labResults}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="treatment-plan">
-            Treatment & Care
-            {dataCounts.serviceRequests + dataCounts.appointments > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.serviceRequests + dataCounts.appointments}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="administrative">
-            Administrative
-            {dataCounts.administrative > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">
-                {dataCounts.administrative}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <PatientOverview
-            patient={data.patient}
-            observations={data.observations}
-          />
-        </TabsContent>
-
-        <TabsContent value="medical-history" className="space-y-4">
-          <MedicalHistory
-            conditions={data.conditions}
-            procedures={data.procedures}
-            allergies={data.allergies}
-          />
-        </TabsContent>
-
-        <TabsContent value="medications" className="space-y-4">
-          <Medications
-            medicationStatements={data.medicationStatements}
-            medicationRequests={data.medicationRequests}
-          />
-        </TabsContent>
-
-        <TabsContent value="goals-lifestyle" className="space-y-4">
-          <GoalsLifestyle goals={data.goals} observations={data.observations} />
-        </TabsContent>
-
-        <TabsContent value="lab-results" className="space-y-4">
-          <LaboratoryResults observations={data.observations} />
-        </TabsContent>
-
-        <TabsContent value="treatment-plan" className="space-y-4">
-          <TreatmentPlan
-            serviceRequests={data.serviceRequests}
-            appointments={data.appointments}
-            consents={data.consents}
-            invoices={data.invoices}
-          />
-        </TabsContent>
-
-        <TabsContent value="administrative" className="space-y-4">
-          <Administrative observations={data.observations} />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </>
   );
 }

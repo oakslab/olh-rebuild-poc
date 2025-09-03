@@ -4,8 +4,9 @@ import { validateIntakeForm, formatValidationErrors } from "@/lib/validation";
 import { medplum } from "@/lib/medplum";
 import { createIntakeBundle } from "@/lib/fhir-converter";
 import { randomUUID } from "crypto";
+import { withAuth } from "@/lib/auth-middleware";
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async function POST(request: NextRequest) {
   try {
     // Parse the request body
     const body: IntakeFormData = await request.json();
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 500 });
   }
-}
+});
 
 export async function GET() {
   // Return API information for GET requests

@@ -15,6 +15,7 @@ import {
   Invoice,
   Appointment,
 } from "@medplum/fhirtypes";
+import { withAuth } from "@/lib/auth-middleware";
 
 export interface PatientDetailResponse {
   success: boolean;
@@ -39,7 +40,7 @@ export interface PatientDetailResponse {
 /**
  * GET /api/patient/[id] - Fetch comprehensive patient data from Medplum
  */
-export async function GET(
+export const GET = withAuth(async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<PatientDetailResponse>> {
@@ -202,4 +203,4 @@ export async function GET(
       { status: 500 }
     );
   }
-}
+});
