@@ -387,6 +387,7 @@ export function convertToFHIRConditions(
   patientUrnUuid: string
 ): Condition[] {
   const conditions: Condition[] = [];
+  const currentDateTime = new Date().toISOString();
 
   // Medical exclusion criteria
   if (intakeData.medicalExclusionCriteria?.length) {
@@ -420,6 +421,8 @@ export function convertToFHIRConditions(
         subject: {
           reference: patientUrnUuid,
         },
+        onsetDateTime: currentDateTime,
+        recordedDate: currentDateTime,
       });
     });
   }
@@ -456,6 +459,8 @@ export function convertToFHIRConditions(
         subject: {
           reference: patientUrnUuid,
         },
+        onsetDateTime: currentDateTime,
+        recordedDate: currentDateTime,
       });
     });
   }
@@ -492,6 +497,8 @@ export function convertToFHIRConditions(
         subject: {
           reference: patientUrnUuid,
         },
+        onsetDateTime: currentDateTime,
+        recordedDate: currentDateTime,
       });
     });
   }
