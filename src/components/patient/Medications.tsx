@@ -2,15 +2,22 @@ import { MedicationStatement, MedicationRequest } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface MedicationsProps {
   medicationStatements: MedicationStatement[];
   medicationRequests: MedicationRequest[];
+  resourceMappings: {
+    medicationStatements: FhirResourceMapping[];
+    medicationRequests: FhirResourceMapping[];
+  };
 }
 
 export function Medications({
   medicationStatements,
   medicationRequests,
+  resourceMappings,
 }: MedicationsProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
@@ -139,6 +146,10 @@ export function Medications({
                 const medicationName = getMedicationName(
                   statement.medicationCodeableConcept
                 );
+                const statementMapping =
+                  resourceMappings.medicationStatements.find(
+                    mapping => mapping.resourceId === statement.id
+                  );
 
                 return (
                   <div
@@ -146,9 +157,21 @@ export function Medications({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {medicationName}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {medicationName}
+                        </h4>
+                        {statementMapping && (
+                          <FhirResourceLink
+                            resourceType={statementMapping.resourceType}
+                            resourceId={statementMapping.resourceId}
+                            resourcePath={statementMapping.resourcePath}
+                            displayName={statementMapping.displayName}
+                            code={statementMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </div>
 
@@ -259,6 +282,9 @@ export function Medications({
                 const medicationName = getMedicationName(
                   request.medicationCodeableConcept
                 );
+                const requestMapping = resourceMappings.medicationRequests.find(
+                  mapping => mapping.resourceId === request.id
+                );
 
                 return (
                   <div
@@ -266,9 +292,21 @@ export function Medications({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {medicationName}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {medicationName}
+                        </h4>
+                        {requestMapping && (
+                          <FhirResourceLink
+                            resourceType={requestMapping.resourceType}
+                            resourceId={requestMapping.resourceId}
+                            resourcePath={requestMapping.resourcePath}
+                            displayName={requestMapping.displayName}
+                            code={requestMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Badge variant={intent.variant}>{intent.label}</Badge>
                         <Badge variant={status.variant}>{status.label}</Badge>

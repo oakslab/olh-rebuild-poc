@@ -7,12 +7,20 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface TreatmentPlanProps {
   serviceRequests: ServiceRequest[];
   appointments: Appointment[];
   consents: Consent[];
   invoices: Invoice[];
+  resourceMappings: {
+    serviceRequests: FhirResourceMapping[];
+    appointments: FhirResourceMapping[];
+    consents: FhirResourceMapping[];
+    invoices: FhirResourceMapping[];
+  };
 }
 
 export function TreatmentPlan({
@@ -20,6 +28,7 @@ export function TreatmentPlan({
   appointments,
   consents,
   invoices,
+  resourceMappings,
 }: TreatmentPlanProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
@@ -188,6 +197,9 @@ export function TreatmentPlan({
               {serviceRequests.map((request, index) => {
                 const status = getServiceRequestStatus(request);
                 const intent = getServiceRequestIntent(request.intent);
+                const requestMapping = resourceMappings.serviceRequests.find(
+                  mapping => mapping.resourceId === request.id
+                );
 
                 return (
                   <div
@@ -195,11 +207,23 @@ export function TreatmentPlan({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {request.code?.text ||
-                          request.code?.coding?.[0]?.display ||
-                          "Unspecified service"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {request.code?.text ||
+                            request.code?.coding?.[0]?.display ||
+                            "Unspecified service"}
+                        </h4>
+                        {requestMapping && (
+                          <FhirResourceLink
+                            resourceType={requestMapping.resourceType}
+                            resourceId={requestMapping.resourceId}
+                            resourcePath={requestMapping.resourcePath}
+                            displayName={requestMapping.displayName}
+                            code={requestMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Badge variant={intent.variant}>{intent.label}</Badge>
                         <Badge variant={status.variant}>{status.label}</Badge>
@@ -305,6 +329,9 @@ export function TreatmentPlan({
             <div className="space-y-4">
               {appointments.map((appointment, index) => {
                 const status = getAppointmentStatus(appointment);
+                const appointmentMapping = resourceMappings.appointments.find(
+                  mapping => mapping.resourceId === appointment.id
+                );
 
                 return (
                   <div
@@ -312,11 +339,23 @@ export function TreatmentPlan({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {appointment.appointmentType?.text ||
-                          appointment.appointmentType?.coding?.[0]?.display ||
-                          "Healthcare Appointment"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {appointment.appointmentType?.text ||
+                            appointment.appointmentType?.coding?.[0]?.display ||
+                            "Healthcare Appointment"}
+                        </h4>
+                        {appointmentMapping && (
+                          <FhirResourceLink
+                            resourceType={appointmentMapping.resourceType}
+                            resourceId={appointmentMapping.resourceId}
+                            resourcePath={appointmentMapping.resourcePath}
+                            displayName={appointmentMapping.displayName}
+                            code={appointmentMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </div>
 
@@ -412,6 +451,9 @@ export function TreatmentPlan({
             <div className="space-y-4">
               {consents.map((consent, index) => {
                 const status = getConsentStatus(consent);
+                const consentMapping = resourceMappings.consents.find(
+                  mapping => mapping.resourceId === consent.id
+                );
 
                 return (
                   <div
@@ -419,11 +461,23 @@ export function TreatmentPlan({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {consent.scope?.text ||
-                          consent.scope?.coding?.[0]?.display ||
-                          "Healthcare Consent"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {consent.scope?.text ||
+                            consent.scope?.coding?.[0]?.display ||
+                            "Healthcare Consent"}
+                        </h4>
+                        {consentMapping && (
+                          <FhirResourceLink
+                            resourceType={consentMapping.resourceType}
+                            resourceId={consentMapping.resourceId}
+                            resourcePath={consentMapping.resourcePath}
+                            displayName={consentMapping.displayName}
+                            code={consentMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </div>
 
@@ -492,6 +546,9 @@ export function TreatmentPlan({
             <div className="space-y-4">
               {invoices.map((invoice, index) => {
                 const status = getInvoiceStatus(invoice);
+                const invoiceMapping = resourceMappings.invoices.find(
+                  mapping => mapping.resourceId === invoice.id
+                );
 
                 return (
                   <div
@@ -499,9 +556,21 @@ export function TreatmentPlan({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        Invoice #{invoice.id || `INV-${index + 1}`}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          Invoice #{invoice.id || `INV-${index + 1}`}
+                        </h4>
+                        {invoiceMapping && (
+                          <FhirResourceLink
+                            resourceType={invoiceMapping.resourceType}
+                            resourceId={invoiceMapping.resourceId}
+                            resourcePath={invoiceMapping.resourcePath}
+                            displayName={invoiceMapping.displayName}
+                            code={invoiceMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </div>
 

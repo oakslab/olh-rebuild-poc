@@ -2,12 +2,20 @@ import { Observation } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface AdministrativeProps {
   observations: Observation[];
+  resourceMappings: {
+    observations: FhirResourceMapping[];
+  };
 }
 
-export function Administrative({ observations }: AdministrativeProps) {
+export function Administrative({
+  observations,
+  resourceMappings,
+}: AdministrativeProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
     return new Date(dateString).toLocaleDateString();
@@ -97,9 +105,28 @@ export function Administrative({ observations }: AdministrativeProps) {
           {mwlEligibilityObs && (
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-semibold">
-                  Medical Weight Loss Eligibility
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">
+                    Medical Weight Loss Eligibility
+                  </h4>
+                  {(() => {
+                    const mapping = resourceMappings.observations.find(
+                      m => m.resourceId === mwlEligibilityObs.id
+                    );
+                    return (
+                      mapping && (
+                        <FhirResourceLink
+                          resourceType={mapping.resourceType}
+                          resourceId={mapping.resourceId}
+                          resourcePath={mapping.resourcePath}
+                          displayName={mapping.displayName}
+                          code={mapping.code}
+                          size="sm"
+                        />
+                      )
+                    );
+                  })()}
+                </div>
                 <Badge
                   variant={
                     getEligibilityStatus(mwlEligibilityObs.valueBoolean).variant
@@ -121,7 +148,28 @@ export function Administrative({ observations }: AdministrativeProps) {
           {dqReasonObs && (
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-semibold">Disqualification Information</h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">
+                    Disqualification Information
+                  </h4>
+                  {(() => {
+                    const mapping = resourceMappings.observations.find(
+                      m => m.resourceId === dqReasonObs.id
+                    );
+                    return (
+                      mapping && (
+                        <FhirResourceLink
+                          resourceType={mapping.resourceType}
+                          resourceId={mapping.resourceId}
+                          resourcePath={mapping.resourcePath}
+                          displayName={mapping.displayName}
+                          code={mapping.code}
+                          size="sm"
+                        />
+                      )
+                    );
+                  })()}
+                </div>
                 <Badge variant="warning">Review Required</Badge>
               </div>
               <div className="bg-yellow-50 dark:bg-yellow-950 p-3 rounded border-l-4 border-yellow-500">
@@ -140,9 +188,28 @@ export function Administrative({ observations }: AdministrativeProps) {
           {mwlExclusivityObs && (
             <div className="border rounded-lg p-4">
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-semibold">
-                  Platform Exclusivity Agreement
-                </h4>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold">
+                    Platform Exclusivity Agreement
+                  </h4>
+                  {(() => {
+                    const mapping = resourceMappings.observations.find(
+                      m => m.resourceId === mwlExclusivityObs.id
+                    );
+                    return (
+                      mapping && (
+                        <FhirResourceLink
+                          resourceType={mapping.resourceType}
+                          resourceId={mapping.resourceId}
+                          resourcePath={mapping.resourcePath}
+                          displayName={mapping.displayName}
+                          code={mapping.code}
+                          size="sm"
+                        />
+                      )
+                    );
+                  })()}
+                </div>
                 <Badge
                   variant={
                     getComplianceStatus(mwlExclusivityObs.valueBoolean).variant
@@ -196,15 +263,30 @@ export function Administrative({ observations }: AdministrativeProps) {
                 const isExclusivity = obs.code?.coding?.some(
                   coding => coding.code === "mwl-exclusivity"
                 );
+                const mapping = resourceMappings.observations.find(
+                  m => m.resourceId === obs.id
+                );
 
                 return (
                   <div key={obs.id || index} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium">
-                        {obs.code?.text ||
-                          obs.code?.coding?.[0]?.display ||
-                          "Administrative Record"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">
+                          {obs.code?.text ||
+                            obs.code?.coding?.[0]?.display ||
+                            "Administrative Record"}
+                        </h4>
+                        {mapping && (
+                          <FhirResourceLink
+                            resourceType={mapping.resourceType}
+                            resourceId={mapping.resourceId}
+                            resourcePath={mapping.resourcePath}
+                            displayName={mapping.displayName}
+                            code={mapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         {obs.status && (
                           <Badge variant="outline" className="text-xs">

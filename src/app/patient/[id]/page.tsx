@@ -271,6 +271,10 @@ export default function PatientDetailPage() {
             <PatientOverview
               patient={data.patient}
               observations={data.observations}
+              resourceMappings={{
+                patient: data.resourceMappings.patient,
+                observations: data.resourceMappings.observations,
+              }}
             />
           </TabsContent>
 
@@ -279,6 +283,11 @@ export default function PatientDetailPage() {
               conditions={data.conditions}
               procedures={data.procedures}
               allergies={data.allergies}
+              resourceMappings={{
+                conditions: data.resourceMappings.conditions,
+                procedures: data.resourceMappings.procedures,
+                allergies: data.resourceMappings.allergies,
+              }}
             />
           </TabsContent>
 
@@ -286,6 +295,11 @@ export default function PatientDetailPage() {
             <Medications
               medicationStatements={data.medicationStatements}
               medicationRequests={data.medicationRequests}
+              resourceMappings={{
+                medicationStatements:
+                  data.resourceMappings.medicationStatements,
+                medicationRequests: data.resourceMappings.medicationRequests,
+              }}
             />
           </TabsContent>
 
@@ -293,11 +307,20 @@ export default function PatientDetailPage() {
             <GoalsLifestyle
               goals={data.goals}
               observations={data.observations}
+              resourceMappings={{
+                goals: data.resourceMappings.goals,
+                observations: data.resourceMappings.observations,
+              }}
             />
           </TabsContent>
 
           <TabsContent value="lab-results" className="space-y-4">
-            <LaboratoryResults observations={data.observations} />
+            <LaboratoryResults
+              observations={data.observations}
+              resourceMappings={{
+                observations: data.resourceMappings.observations,
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="treatment-plan" className="space-y-4">
@@ -306,11 +329,22 @@ export default function PatientDetailPage() {
               appointments={data.appointments}
               consents={data.consents}
               invoices={data.invoices}
+              resourceMappings={{
+                serviceRequests: data.resourceMappings.serviceRequests,
+                appointments: data.resourceMappings.appointments,
+                consents: data.resourceMappings.consents,
+                invoices: data.resourceMappings.invoices,
+              }}
             />
           </TabsContent>
 
           <TabsContent value="administrative" className="space-y-4">
-            <Administrative observations={data.observations} />
+            <Administrative
+              observations={data.observations}
+              resourceMappings={{
+                observations: data.resourceMappings.observations,
+              }}
+            />
           </TabsContent>
         </Tabs>
       </div>

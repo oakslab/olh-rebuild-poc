@@ -17,6 +17,15 @@ import {
 } from "@medplum/fhirtypes";
 import { withAuth } from "@/lib/auth-middleware";
 
+export interface FhirResourceMapping {
+  resourceType: string;
+  resourceId: string;
+  resourcePath: string;
+  displayName?: string;
+  code?: string;
+  category?: string;
+}
+
 export interface PatientDetailResponse {
   success: boolean;
   message: string;
@@ -33,8 +42,41 @@ export interface PatientDetailResponse {
     consents: Consent[];
     invoices: Invoice[];
     appointments: Appointment[];
+    resourceMappings: {
+      patient: FhirResourceMapping;
+      observations: FhirResourceMapping[];
+      goals: FhirResourceMapping[];
+      conditions: FhirResourceMapping[];
+      medicationStatements: FhirResourceMapping[];
+      procedures: FhirResourceMapping[];
+      allergies: FhirResourceMapping[];
+      medicationRequests: FhirResourceMapping[];
+      serviceRequests: FhirResourceMapping[];
+      consents: FhirResourceMapping[];
+      invoices: FhirResourceMapping[];
+      appointments: FhirResourceMapping[];
+    };
   };
   error?: string;
+}
+
+/**
+ * Helper function to create resource mapping
+ */
+function createResourceMapping(
+  resource: any,
+  displayName?: string,
+  code?: string,
+  category?: string
+): FhirResourceMapping {
+  return {
+    resourceType: resource.resourceType,
+    resourceId: resource.id || "",
+    resourcePath: `${resource.resourceType}/${resource.id}`,
+    displayName,
+    code,
+    category,
+  };
 }
 
 /**
@@ -142,6 +184,80 @@ export const GET = withAuth(async function GET(
       }),
     ]);
 
+    // Create resource mappings
+    const resourceMappings = {
+      patient: createResourceMapping(
+        patient,
+        "Patient Demographics",
+        undefined,
+        "Demographics"
+      ),
+      observations: observations.map(obs => {
+        const code = obs.code?.coding?.[0]?.code;
+        const displayName = obs.code?.text || obs.code?.coding?.[0]?.display;
+        const category = obs.category?.[0]?.coding?.[0]?.code;
+        return createResourceMapping(obs, displayName, code, category);
+      }),
+      goals: goals.map(goal => {
+        const displayName =
+          goal.description?.text || goal.description?.coding?.[0]?.display;
+        return createResourceMapping(goal, displayName);
+      }),
+      conditions: conditions.map(condition => {
+        const displayName =
+          condition.code?.text || condition.code?.coding?.[0]?.display;
+        const code = condition.code?.coding?.[0]?.code;
+        return createResourceMapping(condition, displayName, code);
+      }),
+      medicationStatements: medicationStatements.map(med => {
+        const displayName =
+          med.medicationCodeableConcept?.text ||
+          med.medicationCodeableConcept?.coding?.[0]?.display;
+        const code = med.medicationCodeableConcept?.coding?.[0]?.code;
+        return createResourceMapping(med, displayName, code);
+      }),
+      procedures: procedures.map(proc => {
+        const displayName = proc.code?.text || proc.code?.coding?.[0]?.display;
+        const code = proc.code?.coding?.[0]?.code;
+        return createResourceMapping(proc, displayName, code);
+      }),
+      allergies: allergies.map(allergy => {
+        const displayName =
+          allergy.code?.text || allergy.code?.coding?.[0]?.display;
+        const code = allergy.code?.coding?.[0]?.code;
+        return createResourceMapping(allergy, displayName, code);
+      }),
+      medicationRequests: medicationRequests.map(med => {
+        const displayName =
+          med.medicationCodeableConcept?.text ||
+          med.medicationCodeableConcept?.coding?.[0]?.display;
+        const code = med.medicationCodeableConcept?.coding?.[0]?.code;
+        return createResourceMapping(med, displayName, code);
+      }),
+      serviceRequests: serviceRequests.map(sr => {
+        const displayName = sr.code?.text || sr.code?.coding?.[0]?.display;
+        const code = sr.code?.coding?.[0]?.code;
+        return createResourceMapping(sr, displayName, code);
+      }),
+      consents: consents.map(consent => {
+        const displayName =
+          consent.category?.[0]?.coding?.[0]?.display || "Consent";
+        const code = consent.category?.[0]?.coding?.[0]?.code;
+        return createResourceMapping(consent, displayName, code);
+      }),
+      invoices: invoices.map(invoice => {
+        const displayName = invoice.type?.coding?.[0]?.display || "Invoice";
+        const code = invoice.type?.coding?.[0]?.code;
+        return createResourceMapping(invoice, displayName, code);
+      }),
+      appointments: appointments.map(appointment => {
+        const displayName =
+          appointment.serviceType?.[0]?.coding?.[0]?.display || "Appointment";
+        const code = appointment.serviceType?.[0]?.coding?.[0]?.code;
+        return createResourceMapping(appointment, displayName, code);
+      }),
+    };
+
     return NextResponse.json({
       success: true,
       message: "Patient data retrieved successfully",
@@ -158,6 +274,7 @@ export const GET = withAuth(async function GET(
         consents,
         invoices,
         appointments,
+        resourceMappings,
       },
     });
   } catch (error) {

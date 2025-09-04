@@ -2,12 +2,20 @@ import { Observation } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface LaboratoryResultsProps {
   observations: Observation[];
+  resourceMappings: {
+    observations: FhirResourceMapping[];
+  };
 }
 
-export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
+export function LaboratoryResults({
+  observations,
+  resourceMappings,
+}: LaboratoryResultsProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
     return new Date(dateString).toLocaleDateString();
@@ -153,7 +161,26 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
                 {glucoseObs && (
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold">Fasting Glucose</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">Fasting Glucose</h4>
+                        {(() => {
+                          const mapping = resourceMappings.observations.find(
+                            m => m.resourceId === glucoseObs.id
+                          );
+                          return (
+                            mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )
+                          );
+                        })()}
+                      </div>
                       <Badge variant={getObservationStatus(glucoseObs).variant}>
                         {getObservationStatus(glucoseObs).label}
                       </Badge>
@@ -176,7 +203,26 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
                 {hba1cObs && (
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold">Hemoglobin A1c</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">Hemoglobin A1c</h4>
+                        {(() => {
+                          const mapping = resourceMappings.observations.find(
+                            m => m.resourceId === hba1cObs.id
+                          );
+                          return (
+                            mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )
+                          );
+                        })()}
+                      </div>
                       <Badge variant={getObservationStatus(hba1cObs).variant}>
                         {getObservationStatus(hba1cObs).label}
                       </Badge>
@@ -202,17 +248,32 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
                 <div className="space-y-3">
                   {laboratoryObs.map((obs, index) => {
                     const status = getObservationStatus(obs);
+                    const mapping = resourceMappings.observations.find(
+                      m => m.resourceId === obs.id
+                    );
                     return (
                       <div
                         key={obs.id || index}
                         className="border rounded-lg p-4"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <h5 className="font-medium">
-                            {obs.code?.text ||
-                              obs.code?.coding?.[0]?.display ||
-                              "Unknown Test"}
-                          </h5>
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium">
+                              {obs.code?.text ||
+                                obs.code?.coding?.[0]?.display ||
+                                "Unknown Test"}
+                            </h5>
+                            {mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )}
+                          </div>
                           <Badge variant={status.variant}>{status.label}</Badge>
                         </div>
 
@@ -290,9 +351,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {startingWeightObs && (
                     <div className="text-center p-3 bg-muted rounded">
-                      <dt className="text-sm font-medium text-muted-foreground">
-                        Starting Weight
-                      </dt>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <dt className="text-sm font-medium text-muted-foreground">
+                          Starting Weight
+                        </dt>
+                        {(() => {
+                          const mapping = resourceMappings.observations.find(
+                            m => m.resourceId === startingWeightObs.id
+                          );
+                          return (
+                            mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )
+                          );
+                        })()}
+                      </div>
                       <dd className="text-xl font-bold text-orange-600">
                         {formatValue(startingWeightObs)}
                       </dd>
@@ -303,9 +383,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
                   )}
                   {weightObs && (
                     <div className="text-center p-3 bg-muted rounded">
-                      <dt className="text-sm font-medium text-muted-foreground">
-                        Current Weight
-                      </dt>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <dt className="text-sm font-medium text-muted-foreground">
+                          Current Weight
+                        </dt>
+                        {(() => {
+                          const mapping = resourceMappings.observations.find(
+                            m => m.resourceId === weightObs.id
+                          );
+                          return (
+                            mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )
+                          );
+                        })()}
+                      </div>
                       <dd className="text-xl font-bold text-blue-600">
                         {formatValue(weightObs)}
                       </dd>
@@ -346,9 +445,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {heightObs && (
                 <div className="text-center p-4 border rounded-lg">
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">
-                    Height
-                  </dt>
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <dt className="text-sm font-medium text-muted-foreground">
+                      Height
+                    </dt>
+                    {(() => {
+                      const mapping = resourceMappings.observations.find(
+                        m => m.resourceId === heightObs.id
+                      );
+                      return (
+                        mapping && (
+                          <FhirResourceLink
+                            resourceType={mapping.resourceType}
+                            resourceId={mapping.resourceId}
+                            resourcePath={mapping.resourcePath}
+                            displayName={mapping.displayName}
+                            code={mapping.code}
+                            size="sm"
+                          />
+                        )
+                      );
+                    })()}
+                  </div>
                   <dd className="text-xl font-bold text-green-600">
                     {formatValue(heightObs)}
                   </dd>
@@ -360,9 +478,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
 
               {bmiObs && (
                 <div className="text-center p-4 border rounded-lg">
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">
-                    BMI
-                  </dt>
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <dt className="text-sm font-medium text-muted-foreground">
+                      BMI
+                    </dt>
+                    {(() => {
+                      const mapping = resourceMappings.observations.find(
+                        m => m.resourceId === bmiObs.id
+                      );
+                      return (
+                        mapping && (
+                          <FhirResourceLink
+                            resourceType={mapping.resourceType}
+                            resourceId={mapping.resourceId}
+                            resourcePath={mapping.resourcePath}
+                            displayName={mapping.displayName}
+                            code={mapping.code}
+                            size="sm"
+                          />
+                        )
+                      );
+                    })()}
+                  </div>
                   <dd className="text-xl font-bold text-purple-600">
                     {formatValue(bmiObs)}
                   </dd>
@@ -374,9 +511,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
 
               {bloodPressureObs && (
                 <div className="text-center p-4 border rounded-lg">
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">
-                    Blood Pressure
-                  </dt>
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <dt className="text-sm font-medium text-muted-foreground">
+                      Blood Pressure
+                    </dt>
+                    {(() => {
+                      const mapping = resourceMappings.observations.find(
+                        m => m.resourceId === bloodPressureObs.id
+                      );
+                      return (
+                        mapping && (
+                          <FhirResourceLink
+                            resourceType={mapping.resourceType}
+                            resourceId={mapping.resourceId}
+                            resourcePath={mapping.resourcePath}
+                            displayName={mapping.displayName}
+                            code={mapping.code}
+                            size="sm"
+                          />
+                        )
+                      );
+                    })()}
+                  </div>
                   <dd className="text-xl font-bold text-red-600">
                     {formatValue(bloodPressureObs)}
                   </dd>
@@ -388,9 +544,28 @@ export function LaboratoryResults({ observations }: LaboratoryResultsProps) {
 
               {heartRateObs && (
                 <div className="text-center p-4 border rounded-lg">
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">
-                    Heart Rate
-                  </dt>
+                  <div className="flex items-center justify-center gap-1 mb-2">
+                    <dt className="text-sm font-medium text-muted-foreground">
+                      Heart Rate
+                    </dt>
+                    {(() => {
+                      const mapping = resourceMappings.observations.find(
+                        m => m.resourceId === heartRateObs.id
+                      );
+                      return (
+                        mapping && (
+                          <FhirResourceLink
+                            resourceType={mapping.resourceType}
+                            resourceId={mapping.resourceId}
+                            resourcePath={mapping.resourcePath}
+                            displayName={mapping.displayName}
+                            code={mapping.code}
+                            size="sm"
+                          />
+                        )
+                      );
+                    })()}
+                  </div>
                   <dd className="text-xl font-bold text-orange-600">
                     {formatValue(heartRateObs)}
                   </dd>

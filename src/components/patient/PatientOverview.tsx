@@ -2,17 +2,24 @@ import { Patient, Observation } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface PatientOverviewProps {
   patient: Patient;
   observations: Observation[];
+  resourceMappings: {
+    patient: FhirResourceMapping;
+    observations: FhirResourceMapping[];
+  };
 }
 
 export function PatientOverview({
   patient,
   observations,
+  resourceMappings,
 }: PatientOverviewProps) {
-  // Extract vital signs observations
+  // Extract vital signs observations with their mappings
   const weightObs = observations.find(obs =>
     obs.code?.coding?.some(coding => coding.code === "29463-7")
   );
@@ -27,6 +34,23 @@ export function PatientOverview({
   );
   const hrObs = observations.find(obs =>
     obs.code?.coding?.some(coding => coding.code === "40443-4")
+  );
+
+  // Find corresponding resource mappings
+  const weightMapping = resourceMappings.observations.find(
+    mapping => mapping.code === "29463-7"
+  );
+  const heightMapping = resourceMappings.observations.find(
+    mapping => mapping.code === "8302-2"
+  );
+  const bmiMapping = resourceMappings.observations.find(
+    mapping => mapping.code === "39156-5"
+  );
+  const bpMapping = resourceMappings.observations.find(
+    mapping => mapping.code === "85354-9"
+  );
+  const hrMapping = resourceMappings.observations.find(
+    mapping => mapping.code === "40443-4"
   );
 
   // Calculate age from birth date
@@ -96,7 +120,16 @@ export function PatientOverview({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            Patient Demographics
+            <div className="flex items-center gap-2">
+              Patient Demographics
+              <FhirResourceLink
+                resourceType={resourceMappings.patient.resourceType}
+                resourceId={resourceMappings.patient.resourceId}
+                resourcePath={resourceMappings.patient.resourcePath}
+                displayName={resourceMappings.patient.displayName}
+                size="sm"
+              />
+            </div>
             <Badge variant={patient.active ? "success" : "secondary"}>
               {patient.active ? "Active" : "Inactive"}
             </Badge>
@@ -202,9 +235,21 @@ export function PatientOverview({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="text-center p-4 border rounded-lg">
-              <dt className="text-sm font-medium text-muted-foreground mb-2">
-                Weight
-              </dt>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Weight
+                </dt>
+                {weightMapping && (
+                  <FhirResourceLink
+                    resourceType={weightMapping.resourceType}
+                    resourceId={weightMapping.resourceId}
+                    resourcePath={weightMapping.resourcePath}
+                    displayName={weightMapping.displayName}
+                    code={weightMapping.code}
+                    size="sm"
+                  />
+                )}
+              </div>
               <dd className="text-2xl font-bold text-blue-600">
                 {weightObs?.valueQuantity?.value
                   ? `${weightObs.valueQuantity.value} ${weightObs.valueQuantity.unit || "lb"}`
@@ -218,9 +263,21 @@ export function PatientOverview({
             </div>
 
             <div className="text-center p-4 border rounded-lg">
-              <dt className="text-sm font-medium text-muted-foreground mb-2">
-                Height
-              </dt>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Height
+                </dt>
+                {heightMapping && (
+                  <FhirResourceLink
+                    resourceType={heightMapping.resourceType}
+                    resourceId={heightMapping.resourceId}
+                    resourcePath={heightMapping.resourcePath}
+                    displayName={heightMapping.displayName}
+                    code={heightMapping.code}
+                    size="sm"
+                  />
+                )}
+              </div>
               <dd className="text-2xl font-bold text-green-600">
                 {heightObs?.valueQuantity?.value
                   ? `${heightObs.valueQuantity.value} ${heightObs.valueQuantity.unit || "in"}`
@@ -234,9 +291,21 @@ export function PatientOverview({
             </div>
 
             <div className="text-center p-4 border rounded-lg">
-              <dt className="text-sm font-medium text-muted-foreground mb-2">
-                BMI
-              </dt>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <dt className="text-sm font-medium text-muted-foreground">
+                  BMI
+                </dt>
+                {bmiMapping && (
+                  <FhirResourceLink
+                    resourceType={bmiMapping.resourceType}
+                    resourceId={bmiMapping.resourceId}
+                    resourcePath={bmiMapping.resourcePath}
+                    displayName={bmiMapping.displayName}
+                    code={bmiMapping.code}
+                    size="sm"
+                  />
+                )}
+              </div>
               <dd className="text-2xl font-bold text-purple-600">
                 {bmiObs?.valueQuantity?.value
                   ? `${bmiObs.valueQuantity.value} ${bmiObs.valueQuantity.unit || "kg/m2"}`
@@ -250,9 +319,21 @@ export function PatientOverview({
             </div>
 
             <div className="text-center p-4 border rounded-lg">
-              <dt className="text-sm font-medium text-muted-foreground mb-2">
-                Blood Pressure
-              </dt>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Blood Pressure
+                </dt>
+                {bpMapping && (
+                  <FhirResourceLink
+                    resourceType={bpMapping.resourceType}
+                    resourceId={bpMapping.resourceId}
+                    resourcePath={bpMapping.resourcePath}
+                    displayName={bpMapping.displayName}
+                    code={bpMapping.code}
+                    size="sm"
+                  />
+                )}
+              </div>
               <dd className="text-2xl font-bold text-red-600">
                 {bpObs?.valueString || "Not recorded"}
               </dd>
@@ -264,9 +345,21 @@ export function PatientOverview({
             </div>
 
             <div className="text-center p-4 border rounded-lg">
-              <dt className="text-sm font-medium text-muted-foreground mb-2">
-                Heart Rate
-              </dt>
+              <div className="flex items-center justify-center gap-1 mb-2">
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Heart Rate
+                </dt>
+                {hrMapping && (
+                  <FhirResourceLink
+                    resourceType={hrMapping.resourceType}
+                    resourceId={hrMapping.resourceId}
+                    resourcePath={hrMapping.resourcePath}
+                    displayName={hrMapping.displayName}
+                    code={hrMapping.code}
+                    size="sm"
+                  />
+                )}
+              </div>
               <dd className="text-2xl font-bold text-orange-600">
                 {hrObs?.valueString || "Not recorded"}
               </dd>

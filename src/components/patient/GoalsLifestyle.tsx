@@ -2,13 +2,23 @@ import { Goal, Observation } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface GoalsLifestyleProps {
   goals: Goal[];
   observations: Observation[];
+  resourceMappings: {
+    goals: FhirResourceMapping[];
+    observations: FhirResourceMapping[];
+  };
 }
 
-export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
+export function GoalsLifestyle({
+  goals,
+  observations,
+  resourceMappings,
+}: GoalsLifestyleProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
     return new Date(dateString).toLocaleDateString();
@@ -115,13 +125,28 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
                 const achievement = getAchievementStatus(goal);
                 const category =
                   goal.category?.[0]?.coding?.[0]?.display || "General";
+                const goalMapping = resourceMappings.goals.find(
+                  mapping => mapping.resourceId === goal.id
+                );
 
                 return (
                   <div key={goal.id || index} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-3">
-                      <h4 className="font-semibold text-lg">
-                        {goal.description?.text || "Unspecified goal"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {goal.description?.text || "Unspecified goal"}
+                        </h4>
+                        {goalMapping && (
+                          <FhirResourceLink
+                            resourceType={goalMapping.resourceType}
+                            resourceId={goalMapping.resourceId}
+                            resourcePath={goalMapping.resourcePath}
+                            displayName={goalMapping.displayName}
+                            code={goalMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Badge variant="outline">{category}</Badge>
                         <Badge variant={status.variant}>{status.label}</Badge>
@@ -237,7 +262,26 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
           {/* Willingness to Participate */}
           {willingToObs && (
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-2">Willingness to Participate</h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold">Willingness to Participate</h4>
+                {(() => {
+                  const mapping = resourceMappings.observations.find(
+                    m => m.resourceId === willingToObs.id
+                  );
+                  return (
+                    mapping && (
+                      <FhirResourceLink
+                        resourceType={mapping.resourceType}
+                        resourceId={mapping.resourceId}
+                        resourcePath={mapping.resourcePath}
+                        displayName={mapping.displayName}
+                        code={mapping.code}
+                        size="sm"
+                      />
+                    )
+                  );
+                })()}
+              </div>
               {willingToObs.component && willingToObs.component.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {willingToObs.component.map((component, index) => (
@@ -260,9 +304,28 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
           {/* Weight Change History */}
           {weightChangeObs && (
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-2">
-                Weight Change (Last 12 Months)
-              </h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold">
+                  Weight Change (Last 12 Months)
+                </h4>
+                {(() => {
+                  const mapping = resourceMappings.observations.find(
+                    m => m.resourceId === weightChangeObs.id
+                  );
+                  return (
+                    mapping && (
+                      <FhirResourceLink
+                        resourceType={mapping.resourceType}
+                        resourceId={mapping.resourceId}
+                        resourcePath={mapping.resourcePath}
+                        displayName={mapping.displayName}
+                        code={mapping.code}
+                        size="sm"
+                      />
+                    )
+                  );
+                })()}
+              </div>
               <p className="text-lg">{weightChangeObs.valueString}</p>
               <p className="text-xs text-muted-foreground mt-2">
                 Recorded: {formatDate(weightChangeObs.effectiveDateTime)}
@@ -273,7 +336,26 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
           {/* Formulation Preferences */}
           {formationPrefsObs && (
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-2">Formulation Preferences</h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold">Formulation Preferences</h4>
+                {(() => {
+                  const mapping = resourceMappings.observations.find(
+                    m => m.resourceId === formationPrefsObs.id
+                  );
+                  return (
+                    mapping && (
+                      <FhirResourceLink
+                        resourceType={mapping.resourceType}
+                        resourceId={mapping.resourceId}
+                        resourcePath={mapping.resourcePath}
+                        displayName={mapping.displayName}
+                        code={mapping.code}
+                        size="sm"
+                      />
+                    )
+                  );
+                })()}
+              </div>
               <p className="text-lg">{formationPrefsObs.valueString}</p>
               <p className="text-xs text-muted-foreground mt-2">
                 Recorded: {formatDate(formationPrefsObs.effectiveDateTime)}
@@ -284,9 +366,28 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
           {/* Weight Management Program History */}
           {weightMgmtProgramObs && (
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-2">
-                Prior Weight Management Programs
-              </h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold">
+                  Prior Weight Management Programs
+                </h4>
+                {(() => {
+                  const mapping = resourceMappings.observations.find(
+                    m => m.resourceId === weightMgmtProgramObs.id
+                  );
+                  return (
+                    mapping && (
+                      <FhirResourceLink
+                        resourceType={mapping.resourceType}
+                        resourceId={mapping.resourceId}
+                        resourcePath={mapping.resourcePath}
+                        displayName={mapping.displayName}
+                        code={mapping.code}
+                        size="sm"
+                      />
+                    )
+                  );
+                })()}
+              </div>
               {weightMgmtProgramObs.note &&
               weightMgmtProgramObs.note.length > 0 ? (
                 <p className="text-sm">{weightMgmtProgramObs.note[0].text}</p>
@@ -304,9 +405,28 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
           {/* Instructions for Doctor */}
           {doctorInstructionsObs && (
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-2">
-                Additional Information for Healthcare Provider
-              </h4>
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold">
+                  Additional Information for Healthcare Provider
+                </h4>
+                {(() => {
+                  const mapping = resourceMappings.observations.find(
+                    m => m.resourceId === doctorInstructionsObs.id
+                  );
+                  return (
+                    mapping && (
+                      <FhirResourceLink
+                        resourceType={mapping.resourceType}
+                        resourceId={mapping.resourceId}
+                        resourcePath={mapping.resourcePath}
+                        displayName={mapping.displayName}
+                        code={mapping.code}
+                        size="sm"
+                      />
+                    )
+                  );
+                })()}
+              </div>
               <p className="text-sm bg-blue-50 dark:bg-blue-950 p-3 rounded border-l-4 border-blue-500">
                 {doctorInstructionsObs.valueString}
               </p>
@@ -329,31 +449,51 @@ export function GoalsLifestyle({ goals, observations }: GoalsLifestyleProps) {
                       obs !== weightMgmtProgramObs &&
                       obs !== doctorInstructionsObs
                   )
-                  .map((obs, index) => (
-                    <div key={obs.id || index} className="bg-muted p-3 rounded">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-medium text-sm">
-                          {obs.code?.text ||
-                            obs.code?.coding?.[0]?.display ||
-                            "Social History Item"}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {formatDate(obs.effectiveDateTime)}
-                        </Badge>
+                  .map((obs, index) => {
+                    const mapping = resourceMappings.observations.find(
+                      m => m.resourceId === obs.id
+                    );
+                    return (
+                      <div
+                        key={obs.id || index}
+                        className="bg-muted p-3 rounded"
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">
+                              {obs.code?.text ||
+                                obs.code?.coding?.[0]?.display ||
+                                "Social History Item"}
+                            </span>
+                            {mapping && (
+                              <FhirResourceLink
+                                resourceType={mapping.resourceType}
+                                resourceId={mapping.resourceId}
+                                resourcePath={mapping.resourcePath}
+                                displayName={mapping.displayName}
+                                code={mapping.code}
+                                size="sm"
+                              />
+                            )}
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {formatDate(obs.effectiveDateTime)}
+                          </Badge>
+                        </div>
+                        {obs.valueString && (
+                          <p className="text-sm">{obs.valueString}</p>
+                        )}
+                        {obs.valueBoolean !== undefined && (
+                          <p className="text-sm">
+                            {obs.valueBoolean ? "Yes" : "No"}
+                          </p>
+                        )}
+                        {obs.note && obs.note.length > 0 && (
+                          <p className="text-sm italic">{obs.note[0].text}</p>
+                        )}
                       </div>
-                      {obs.valueString && (
-                        <p className="text-sm">{obs.valueString}</p>
-                      )}
-                      {obs.valueBoolean !== undefined && (
-                        <p className="text-sm">
-                          {obs.valueBoolean ? "Yes" : "No"}
-                        </p>
-                      )}
-                      {obs.note && obs.note.length > 0 && (
-                        <p className="text-sm italic">{obs.note[0].text}</p>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             </div>
           )}

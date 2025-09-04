@@ -2,17 +2,25 @@ import { Condition, Procedure, AllergyIntolerance } from "@medplum/fhirtypes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { FhirResourceLink } from "@/components/ui/fhir-resource-link";
+import { FhirResourceMapping } from "@/app/api/patient/[id]/route";
 
 interface MedicalHistoryProps {
   conditions: Condition[];
   procedures: Procedure[];
   allergies: AllergyIntolerance[];
+  resourceMappings: {
+    conditions: FhirResourceMapping[];
+    procedures: FhirResourceMapping[];
+    allergies: FhirResourceMapping[];
+  };
 }
 
 export function MedicalHistory({
   conditions,
   procedures,
   allergies,
+  resourceMappings,
 }: MedicalHistoryProps) {
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "Date unknown";
@@ -116,6 +124,9 @@ export function MedicalHistory({
                 const status = getConditionStatus(condition);
                 const category =
                   condition.category?.[0]?.coding?.[0]?.display || "General";
+                const conditionMapping = resourceMappings.conditions.find(
+                  mapping => mapping.resourceId === condition.id
+                );
 
                 return (
                   <div
@@ -123,11 +134,23 @@ export function MedicalHistory({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-lg">
-                        {condition.code?.text ||
-                          condition.code?.coding?.[0]?.display ||
-                          "Unspecified condition"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {condition.code?.text ||
+                            condition.code?.coding?.[0]?.display ||
+                            "Unspecified condition"}
+                        </h4>
+                        {conditionMapping && (
+                          <FhirResourceLink
+                            resourceType={conditionMapping.resourceType}
+                            resourceId={conditionMapping.resourceId}
+                            resourcePath={conditionMapping.resourcePath}
+                            displayName={conditionMapping.displayName}
+                            code={conditionMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Badge variant="outline">{category}</Badge>
                         <Badge variant={status.variant}>{status.label}</Badge>
@@ -199,6 +222,9 @@ export function MedicalHistory({
             <div className="space-y-4">
               {procedures.map((procedure, index) => {
                 const status = getProcedureStatus(procedure);
+                const procedureMapping = resourceMappings.procedures.find(
+                  mapping => mapping.resourceId === procedure.id
+                );
 
                 return (
                   <div
@@ -206,11 +232,23 @@ export function MedicalHistory({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-lg">
-                        {procedure.code?.text ||
-                          procedure.code?.coding?.[0]?.display ||
-                          "Unspecified procedure"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {procedure.code?.text ||
+                            procedure.code?.coding?.[0]?.display ||
+                            "Unspecified procedure"}
+                        </h4>
+                        {procedureMapping && (
+                          <FhirResourceLink
+                            resourceType={procedureMapping.resourceType}
+                            resourceId={procedureMapping.resourceId}
+                            resourcePath={procedureMapping.resourcePath}
+                            displayName={procedureMapping.displayName}
+                            code={procedureMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </div>
 
@@ -283,6 +321,9 @@ export function MedicalHistory({
               {allergies.map((allergy, index) => {
                 const status = getAllergyStatus(allergy);
                 const criticality = getAllergyCriticality(allergy.criticality);
+                const allergyMapping = resourceMappings.allergies.find(
+                  mapping => mapping.resourceId === allergy.id
+                );
 
                 return (
                   <div
@@ -290,11 +331,23 @@ export function MedicalHistory({
                     className="border rounded-lg p-4"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-lg">
-                        {allergy.code?.text ||
-                          allergy.code?.coding?.[0]?.display ||
-                          "Unspecified allergen"}
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">
+                          {allergy.code?.text ||
+                            allergy.code?.coding?.[0]?.display ||
+                            "Unspecified allergen"}
+                        </h4>
+                        {allergyMapping && (
+                          <FhirResourceLink
+                            resourceType={allergyMapping.resourceType}
+                            resourceId={allergyMapping.resourceId}
+                            resourcePath={allergyMapping.resourcePath}
+                            displayName={allergyMapping.displayName}
+                            code={allergyMapping.code}
+                            size="sm"
+                          />
+                        )}
+                      </div>
                       <div className="flex gap-2">
                         <Badge variant={status.variant}>{status.label}</Badge>
                         <Badge variant={criticality.variant}>
